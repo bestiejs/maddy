@@ -1,0 +1,27 @@
+{
+  "name": "maddy",
+  "version": "0.0.1",
+  "description": "A functional programming micro-library.",
+  "homepage": "http://github.com/kitgoncharov/maddy",
+  "main": "./lib/maddy",
+  "keywords": ["utility", "functional", "browser", "iteration", "ecma"],
+  "licenses": [{
+    "type": "MIT",
+    "url": "http://kitgoncharov.github.com/maddy/LICENSE"
+  }],
+  "author": {
+    "name": "Kit Goncharov",
+    "web": "http://kitgoncharov.github.com"
+  },
+  "maintainers": [{
+    "name": "Kit Goncharov",
+    "web": "http://kitgoncharov.github.com"
+  }],
+  "bugs": {
+    "url": "http://github.com/kitgoncharov/maddy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kitgoncharov/maddy.git"
+  }
+}
