@@ -1,7 +1,7 @@
 {
   "name": "maddy",
-  "version": "0.0.1",
-  "description": "A functional programming micro-library.",
+  "version": "0.1.0",
+  "description": "A functional programming library.",
   "homepage": "http://github.com/kitgoncharov/maddy",
   "main": "./lib/maddy",
   "keywords": ["utility", "functional", "browser", "iteration", "ecma"],
