@@ -664,6 +664,8 @@
   });
 
   tests.addTest('getClassOf', function () {
+    this.equal(Maddy.getClassOf(null), 'Null', '`null` value');
+    this.equal(Maddy.getClassOf(void 0), 'Undefined', '`undefined` value');
     this.equal(Maddy.getClassOf(function () {}), 'Function', 'Function object');
     this.equal(Maddy.getClassOf({}), 'Object', 'Object instance');
     this.equal(Maddy.getClassOf({
@@ -677,7 +679,7 @@
     this.equal(Maddy.getClassOf(new Boolean(false)), 'Boolean', 'Boolean object');
     this.equal(Maddy.getClassOf(new Number(123)), 'Number', 'Number object');
     this.equal(Maddy.getClassOf(new Date), 'Date', 'Date object');
-    this.done(9);
+    this.done(11);
   });
 
   tests.addTest('times', function () {
