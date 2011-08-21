@@ -58,7 +58,7 @@ Alternatively, you can use the [GitHub issue tracker](http://github.com/kitcambr
 
 ### Unit Tests
 
-Maddy uses the [Spec](http://github.com/kitcambridge/spec) unit testing framework. **The unit tests are written in [Coco](http://satyr.github.com/coco/)**, a self-hosting [CoffeeScript](http://coffeescript.org) dialect that compiles to JavaScript. Coco reduces the syntactic noise and idiomatic verbosity inherent in writing unit tests for a functional programming library.
+Maddy uses the [Spec](http://github.com/kitcambridge/spec) unit testing framework. The unit tests are written in [Coco](http://satyr.github.com/coco/), a self-hosting [CoffeeScript](http://coffeescript.org/) dialect that compiles to JavaScript. **Coco reduces the syntactic noise and idiomatic verbosity inherent in writing unit tests for a functional programming library**.
 
 Coco can be [installed](http://github.com/satyr/coco#readme) via npm or Git. Once you've installed the compiler, run `coco -wc tests/tests.co` from the command line to watch and automatically recompile the unit tests as you modify them.
 
@@ -68,12 +68,13 @@ In addition to the following [Prototype-inspired](http://prototypejs.org/contrib
 
 - **Spacing**: Use two spaces for indentation. No tabs.
 - **Naming**: Keep variable and method names concise but descriptive. `index` and `callback` are preferable to `i` and `fn`.
+- **Functions**: Use [named function declarations](http://kangax.github.com/nfe/) to aid in debugging. Avoid anonymous functions and named function expressions.
 - **Comments**: Significant changes and new methods should be annotated with comments. **To regenerate the annotated source**, install [Docco](http://jashkenas.github.com/docco/) and run `docco lib/maddy.js` from the command line.
 - **Lint**: Make sure that your changes pass [JavaScript Lint](http://javascriptlint.com/). A configuration file is included in the repository; to check the source code for problems, run `jsl -conf jsl.conf`.
 
 ## MIT License
 
-Copyright &copy; 2011 [Kit Cambridge](http://kitcambridge.github.com).
+Copyright &copy; 2011 [Kit Cambridge](http://kitcambridge.github.com/).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
