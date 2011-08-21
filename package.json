@@ -1,27 +1,27 @@
 {
   "name": "maddy",
-  "version": "0.1.0",
-  "description": "A functional programming library.",
-  "homepage": "http://github.com/kitgoncharov/maddy",
+  "version": "0.2.0",
+  "description": "A functional object operations library.",
+  "homepage": "http://github.com/kitcambridge/maddy",
   "main": "./lib/maddy",
-  "keywords": ["utility", "functional", "browser", "iteration", "ecma"],
+  "keywords": ["utility", "functional", "object", "iteration", "enumerable", "hash", "maddy", "array", "ecma"],
   "licenses": [{
     "type": "MIT",
-    "url": "http://kitgoncharov.github.com/maddy/LICENSE"
+    "url": "http://kitcambridge.github.com/maddy/LICENSE"
   }],
   "author": {
-    "name": "Kit Goncharov",
-    "web": "http://kitgoncharov.github.com"
+    "name": "Kit Cambridge",
+    "web": "http://kitcambridge.github.com"
   },
   "maintainers": [{
-    "name": "Kit Goncharov",
-    "web": "http://kitgoncharov.github.com"
+    "name": "Kit Cambridge",
+    "web": "http://kitcambridge.github.com"
   }],
   "bugs": {
-    "url": "http://github.com/kitgoncharov/maddy/issues"
+    "url": "http://github.com/kitcambridge/maddy/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kitgoncharov/maddy.git"
+    "url": "git://github.com/kitcambridge/maddy.git"
   }
 }

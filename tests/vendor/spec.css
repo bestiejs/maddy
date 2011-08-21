@@ -74,7 +74,7 @@ p, #results li.running, #results li.pass {
   background-color: #0a0;
 }
 
-#status.fail, #status.error {
+#status.fail {
   background-color: #f99;
 }
 

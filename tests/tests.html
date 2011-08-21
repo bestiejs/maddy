@@ -14,8 +14,28 @@
       <div id="success"></div>
       <div id="failure" style="color:red;"></div>
     </div>
+    <script>var Associative = {}, curl = {'apiName': 'require'};</script>
     <script src="../lib/maddy.js"></script>
+    <script src="vendor/curl.js"></script>
     <script src="vendor/spec.js"></script>
-    <script src="tests.js"></script>
+    <script>
+    if (/[?&]async=false(?:&|$)/.test(this.location.search)) {
+      this.require = this.define = null;
+      document.write('<script src="tests.js"><\/script>');
+    } else {
+      this.require({
+        // RequireJS accepts relative paths in the module name; `curl.js` does not. Both accept a
+        // `paths` map of module paths to relative paths.
+        'paths': {
+          'lib': '../lib'
+        },
+        // Thwart aggressive resource caching. RequireJS only.
+        'urlArgs': 'async=' + (+new Date)
+      }, ['lib/maddy', 'tests'], function (Maddy, tests) {
+        Associative = Maddy;
+        tests.run();
+      });
+    }
+    </script>
   </body>
 </html>

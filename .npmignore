@@ -1,0 +1,10 @@
+.git*
+jsl.*
+*.tmproj
+
+tests/
+docs/
+
+index.html
+closure.sh
+lib/maddy.min.js

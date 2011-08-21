@@ -34,7 +34,7 @@
   Spec.prototype.constructor = Spec;
 
   // Adds a `test` function to the spec. The `name is optional.
-  Spec.prototype.addTest = function(name, test) {
+  Spec.prototype.add = function(name, test) {
     this[this.length++] = new Test(name, test);
     return this;
   };
@@ -143,7 +143,7 @@
     };
     // Capture a reference to the current event target.
     if (!('target' in event)) event.target = this;
-    if ((callbacks = this.events[event.type]) && (length = callbacks.length)) {
+    if ((callbacks = this.events[event.type])) {
       // Clone the event handler registry.
       callbacks = callbacks.slice(0);
       // Execute each handler.
@@ -153,7 +153,7 @@
       while ((callback = callbacks[index++])) if (callback.call(this, event) === false) break;
     }
     // Trigger the special `all` event.
-    if (event.type != 'all' && (callbacks = this.events.all) && (length = callbacks.length)) {
+    if (event.type != 'all' && (callbacks = this.events.all)) {
       callbacks = callbacks.slice(0);
       index = 0;
       while ((callback = callbacks[index++])) if (callback.call(this, event) === false) break;
@@ -348,7 +348,7 @@
     try {
       callback();
     } catch (exception) {
-      ok = expected == null || (isRegExp && expected.test(exception)) || (isFunction && expected.call(this, exception, this));
+      ok = expected == null || (isRegExp && expected.test(exception.name || exception.message)) || (isFunction && expected.call(this, exception, this));
     }
     return this.ok(ok, message == null ? 'error' : message);
   };

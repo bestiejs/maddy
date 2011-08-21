@@ -1,0 +1,715 @@
+# Maddy Unit Tests
+# http://github.com/kitcambridge/maddy
+
+# Convenience aliases.
+{toString} = {}
+{document, Spec, Maddy} = @
+
+# Load the Spec unit testing library and create a new spec.
+Spec ?= if typeof require is \function then require(\./vendor/spec).Spec else @load? \vendor/spec.js; @Spec
+spec = new Spec "Maddy Unit Tests"
+
+# Load Maddy.
+Maddy ?= if typeof require is \function then require(\../lib/maddy) else @load? \../lib/maddy.js; @Maddy
+
+# Internal event handler; expands and collapses test messages.
+function onClick ->
+  # The event target is the list of messages.
+  target = @parentNode?.getElementsByTagName(\ol).0
+  target?.style.display = if target.style.display is \none then "" else \none
+
+# Log unit test results.
+if document?
+  # Set up logging in a web browser.
+  spec.bind \all, ({type, target, message, expected, actual}) ->
+    # Aggregate spec results, summary, and status.
+    [results, stats, status] = [document.getElementById(\results), document.getElementById(\stats), document.getElementById(\status)]
+    return unless results and stats and status
+
+    switch type
+    # `start` is triggered before any tests are run.
+    case \start
+      # Clear the previous test results and reset the spec status and aggregate spec summary.
+      element.removeChild element.firstChild while element.firstChild for element of [results, stats, status]
+      status.className = \running
+      stats.appendChild document.createTextNode \Running...
+
+    # `setup` is triggered at the start of each test.
+    case \setup
+      # Create a new element for the current test results.
+      element = document.createElement \li
+      element.className = \running
+      name = document.createElement \strong
+      # Show the name of the current test.
+      name.appendChild document.createTextNode target.name
+      # Add an event listener for expanding and collapsing the test messages.
+      name.onclick = onClick
+      element.appendChild name
+      results.appendChild element
+
+    # `teardown` is triggered at the end of each test.
+    case \teardown
+      # The last element in the results display contains the messages for the current test.
+      results.lastChild.className = if target.failures then \fail else \pass
+
+    # `complete` is triggered once all tests have finished running.
+    case \complete
+      # Set the spec status.
+      status.className = if target.failures then \fail else \pass
+      # Create the aggregate spec summary.
+      stats.replaceChild (document.createTextNode "#{target.assertions} assertions, #{target.failures} failures."), stats.firstChild
+      # Show the spec stats.
+      results.parentNode.insertBefore stats, results.nextSibling
+
+    # `assertion` and `failure` events are triggered on a per-test basis.
+    default
+      element = results.lastChild
+
+      # Create the message queue.
+      unless queue = element.getElementsByTagName(\ol).0
+        queue = document.createElement \ol
+        # Hide the message queue.
+        queue.style.display = \none
+        element.appendChild queue
+
+      # Create a new message.
+      assertion = document.createElement \li
+      if type is \assertion
+        # `assertion` is triggered when an assertion succeeds.
+        assertion.className = \assertion
+        # Add the message to the message queue.
+        assertion.appendChild document.createTextNode message
+      else if type is \failure
+        # `failure` is triggered when an assertion fails.
+        assertion.className = \failure
+        assertion.appendChild document.createTextNode message
+
+        # Format and show the anticipated expected value.
+        anticipated = document.createElement \span
+        anticipated.className = \expected
+        anticipated.appendChild document.createTextNode "Expected: "
+        data = document.createElement \code
+        data.appendChild document.createTextNode Maddy.stringify expected
+        anticipated.appendChild data
+        assertion.appendChild anticipated
+
+        # Format and show the provided actual value.
+        provided = document.createElement \span
+        provided.className = \actual
+        provided.appendChild document.createTextNode "Actual: "
+        data = document.createElement \code
+        data.appendChild document.createTextNode Maddy.stringify actual
+        provided.appendChild data
+        assertion.appendChild provided
+
+      # Show the message.
+      queue.appendChild assertion
+    void
+else
+  # Set up logging in a command-line environment.
+  print =
+    if typeof console?.log is \function then (message) -> console.log message
+    else if typeof @print is \function then @print
+    else -> throw new Error "This environment does not support logging."
+  spec.bind \all, ({type, target, message, expected, actual}) ->
+    switch type
+    case \start then print "Started spec `#{@name}`."
+    case \setup then print "Started test `#{target.name}`."
+    case \assertion then print "Assertion: #{message}."
+    case \failure then print "Failure: #{message}. Expected: #{Maddy.stringify expected}. Actual: #{Maddy.stringify actual}."
+    case \teardown then print "Finished test `#{target.name}`. #{target.assertions} assertions, #{target.failures} failures."
+    case \complete then print "Finished spec `#{@name}`. #{@assertions} assertions, #{@failures} failures."
+    void
+
+# Test async module loader compatibility if `curl.js` is loaded.
+if document? and require? then spec.add "Async Module Loader Compatibility", ->
+  setTimeout ~> @equal(Associative.version, Maddy.version, "Maddy is compatible with async module loaders").done 1
+
+spec.add \isPropertyOf, ->
+  # A sample constructor function with direct and inherited properties.
+  class Class
+    -> @valueOf = @toString = 1
+    ::isPrototypeOf = ::hasOwnProperty = ::valueOf = 1
+
+  # Direct instance properties.
+  @ok (Maddy.isPropertyOf new Class, \valueOf), "The instance property `valueOf` shadows a property on the prototype"
+  @ok (Maddy.isPropertyOf new Class, \toString), "The instance property `toString` shadows a property on the prototype"
+
+  # Direct prototype properties.
+  @ok (Maddy.isPropertyOf Class::, \hasOwnProperty), "The prototype property `hasOwnProperty` shadows a property on `Object.prototype`"
+  @ok (Maddy.isPropertyOf Class::, \isPrototypeOf), "The prototype property `isPrototypeOf` shadows a property on `Object.prototype`"
+  @ok (Maddy.isPropertyOf Class::, \valueOf), "The prototype property `valueOf` shadows a property on `Object.prototype`"
+
+  # Direct constructor properties.
+  @ok (Maddy.isPropertyOf Class, \prototype), "The constructor property `prototype` is a direct property"
+
+  # Direct prototype properties.
+  @ok (not Maddy.isPropertyOf new Class, \isPrototypeOf), "`isPrototypeOf` is an inherited property"
+  @ok (not Maddy.isPropertyOf new Class, \propertyIsEnumerable), "`propertyIsEnumerable` is an inherited property"
+
+  # Inherited prototype properties.
+  @ok (not Maddy.isPropertyOf Class::, \toString), "`toString` is a property inherited from `Object.prototype`"
+
+  @done 9
+
+spec.add \getClassOf, ->
+  # `null` and `undefined` are not `[[Class]]` names, but are specified in specified in ES 5.1
+  # section 15.2.4.2.
+  @equal Maddy.getClassOf(null), \Null, "The `[[Class]]` name of a `null` value is `Null`"
+  @equal Maddy.getClassOf!, \Undefined, "The `[[Class]]` name of an `undefined` value is `Undefined`"
+
+  # Objects.
+  @equal Maddy.getClassOf({}), \Object, "The `[[Class]]` name of an object literal is `Object`"
+  @equal Maddy.getClassOf([]{length, push, slice}), \Object, "The `[[Class]]` name of an array-like object is `Object`"
+  @equal Maddy.getClassOf(->), \Function, "The `[[Class]]` name of a function is `Function`"
+  @equal Maddy.getClassOf([]), \Array, "The `[[Class]]` name of an array literal is `Array`"
+  @equal Maddy.getClassOf(/(?:)/), \RegExp, "The `[[Class]]` name of a RegExp is `RegExp`"
+  @equal Maddy.getClassOf(new Date), \Date, "The `[[Class]]` name of a `Date` instance is `Date`"
+
+  # A `[[Class]]` name map is used internally to normalize cross-browser inconsistencies in
+  # native class names. In Safari 2, all `Error` objects have a `[[Class]]` name of `Object`.
+  @equal Maddy.getClassOf(new Error), \Object, "The normalized `[[Class]]` of an `Error` object is `Object`"
+
+  # Primitives and objects have identical `[[Class]]` names.
+  @equal Maddy.getClassOf(\Kit), \String, "The `[[Class]]` name of a string primitive is `String`"
+  @equal Maddy.getClassOf(new String \Maddy), \String, "The `[[Class]]` name of a string object is `String`"
+  @equal Maddy.getClassOf(true), \Boolean, "The `[[Class]]` name of a boolean primitive is `Boolean`"
+  @equal Maddy.getClassOf(new Boolean), \Boolean, "The `[[Class]]` name of a boolean object is `Boolean`"
+  @equal Maddy.getClassOf(63), \Number, "The `[[Class]]` name of a number primitive is `Number`"
+  @equal Maddy.getClassOf(new Number 61), \Number, "The `[[Class]]` name of a number object is `Number`"
+
+  @done 15
+
+spec.add \forEach, ->
+  # A constructor function with direct and inherited properties that trigger the JScript
+  # `[[DontEnum]]` bug.
+  class Class
+    # The `valueOf` and `toString` properties shadow properties on the prototype.
+    -> @[<[length valueOf toString]>] = [1 2 3]
+    # All prototype properties shadow corresponding `Object.prototype` properties.
+    ::[<[constructor toString toLocaleString isPrototypeOf propertyIsEnumerable hasOwnProperty]>] = [4 5 6 7 8 9]
+
+  # Callback function arguments and explicitly returning `false`.
+  size = 0
+  Maddy.forEach new Class, (key, value, object) ~>
+    size++
+    @equal value, object[key], "The callback function accepts `key` and `value` arguments"
+    false
+  @equal size, 1, "Explicitly returning `false` breaks the loop"
+
+  # Enumeration of direct instance properties.
+  size = 0
+  Maddy.forEach new Class, (key, value) ~>
+    size++
+    switch key
+    case \length then @equal value, 1, "The direct `length` property is enumerated"
+    case \valueOf then @equal value, 2, "The direct `valueOf` property is enumerated"
+    case \toString then @equal value, 3, "The shadowed `toString` property is enumerated once"
+  @equal size, 3, "The `Class` instance should contain three direct properties"
+
+  # Enumeration of direct prototype properties.
+  size = 0
+  Maddy.forEach Class::, (key, value) ~>
+    size++
+    switch key
+    case \constructor then @equal value, 4, "The direct `constructor` prototype property is enumerated"
+    case \toString then @equal value, 5, "The direct `toString` prototype property is enumerated"
+    case \toLocaleString then @equal value, 6, "The direct `toLocaleString` prototype property is enumerated"
+    case \isPrototypeOf then @equal value, 7, "The direct `isPrototypeOf` prototype property is enumerated"
+    case \propertyIsEnumerable then @equal value, 8, "The direct `propertyIsEnumerable` prototype property is enumerated"
+    case \hasOwnProperty then @equal value, 9, "The direct `hasOwnProperty` prototype property is enumerated"
+  @equal size, 6, "The `Class` prototype should contain six direct properties"
+
+  # Normalizing the enumeration of the `prototype` property across environments.
+  result = true
+  Maddy.forEach Class, -> result := false if it is \prototype
+  @ok result, "The `prototype` property of functions should not be enumerated"
+
+  @done 14
+
+spec.add \isEqual, ->
+  # Constructor functions with identical direct instance properties but different inherited
+  # properties.
+  class First then ::toString = 1; -> @toString = 1
+  class Second then ::toString = 2; -> @toString = 1
+
+  # Basic equality and identity comparisons.
+  @ok (not Maddy.isEqual 0, -0), "`0` is not equal to `-0`"
+  @ok (not Maddy.isEqual -0, 0), "Commutative equality is implemented for `0` and `-0`"
+  @ok (Maddy.isEqual null, null), "`null` is equal to `null`"
+  @ok Maddy.isEqual!, "`undefined` is equal to `undefined`"
+  @ok (not Maddy.isEqual null, void), "`null` is not equal to `undefined`"
+  @ok (not Maddy.isEqual void, null), "Commutative equality is implemented for `null` and `undefined`"
+
+  # Strings.
+  @ok (Maddy.isEqual \Maddy, \Maddy), "Identical string primitives are equal"
+  @ok (Maddy.isEqual new String(\Maddy), \Maddy), "String primitives and their corresponding object wrappers are equal"
+  @ok (Maddy.isEqual \Maddy, new String(\Maddy)), "Commutative equality is implemented for strings"
+  @ok (Maddy.isEqual new String(\Maddy), new String(\Maddy)), "String objects with identical primitive values are equal"
+  @ok (not Maddy.isEqual new String(\Maddy), new String(\Kit)), "String objects with different primitive values are not equal"
+  @ok (not Maddy.isEqual new String(\Maddy), \Kit), "String objects and primitives with different values are not equal"
+  @ok (not Maddy.isEqual new String(\Maddy), toString: -> \Maddy), "String objects and objects with a custom `toString` method are not equal"
+
+  # Numbers and `NaN`.
+  @ok (Maddy.isEqual 75, 75), "Identical number primitives are equal"
+  @ok (Maddy.isEqual 75, new Number(75)), "Number primitives and their corresponding object wrappers are equal"
+  @ok (Maddy.isEqual new Number(75), 75), "Commutative equality is implemented for numbers"
+  @ok (Maddy.isEqual new Number(75), new Number(75)), "Number objects with identical primitive values are equal"
+  @ok (not Maddy.isEqual new Number(75), new Number(63)), "Number objects with different primitive values are not equal"
+  @ok (not Maddy.isEqual new Number(63), valueOf: -> 63), "Number objects and objects with a `valueOf` method are not equal"
+  @ok (Maddy.isEqual NaN, NaN), "`NaN` is equal to `NaN`"
+  @ok (not Maddy.isEqual 61, NaN), "A number primitive is not equal to `NaN`"
+  @ok (not Maddy.isEqual new Number(79), NaN), "A number object is not equal to `NaN`"
+  @ok (not Maddy.isEqual Infinity, NaN), "`Infinity` is not equal to `NaN`"
+
+  # Booleans.
+  @ok (Maddy.isEqual true, true), "Identical boolean primitives are equal"
+  @ok (Maddy.isEqual true, new Boolean true), "Boolean primitives and their corresponding object wrappers are equal"
+  @ok (Maddy.isEqual new Boolean(true), true), "Commutative equality is implemented for booleans"
+  @ok (Maddy.isEqual new Boolean, new Boolean), "Boolean objects with identical primitive values are equal"
+  @ok (not Maddy.isEqual new Boolean(true), new Boolean), "Boolean objects with different primitive values are not equal"
+
+  # Common type coercions.
+  @ok (not Maddy.isEqual true, new Boolean(false)), "Boolean objects are not equal to the boolean primitive `true`"
+  @ok (not Maddy.isEqual "75", 75), "String and number primitives with like values are not equal"
+  @ok (not Maddy.isEqual new Number(63), new String(63)), "String and number objects with like values are not equal"
+  @ok (not Maddy.isEqual 75, "75"), "Commutative equality is implemented for like string and number values"
+  @ok (not Maddy.isEqual 0, ""), "Number and string primitives with like values are not equal"
+  @ok (not Maddy.isEqual 1, true), "Number and boolean primitives with like values are not equal"
+  @ok (not Maddy.isEqual new Boolean(false), new Number(0)), "Boolean and number objects with like values are not equal"
+  @ok (not Maddy.isEqual false, new String("")), "Boolean primitives and string objects with like values are not equal"
+  @ok (not Maddy.isEqual 7732152e5, new Date(1994, 6, 3)), "Dates and their corresponding numeric primitive values are not equal"
+
+  # Dates.
+  @ok (Maddy.isEqual new Date(1994, 6, 3), new Date(1994, 6, 3)), "Date objects referencing identical times are equal"
+  @ok (not Maddy.isEqual new Date(1994, 6, 3), new Date(1993, 5, 2)), "Date objects referencing different times are not equal"
+  @ok (not Maddy.isEqual new Date(1993, 5, 2), getTime: -> 7390008e5), "Date objects and objects with a `getTime` method are not equal"
+  @ok (not Maddy.isEqual new Date(\Maddy), new Date(\Maddy)), "Invalid dates are not equal"
+
+  # Functions.
+  @ok (not Maddy.isEqual First, Second), "Different functions with identical bodies and source code representations are not equal"
+
+  # RegExps.
+  @ok (Maddy.isEqual /(?:)/gim, /(?:)/gim), "RegExps with equivalent patterns and flags are equal"
+  @ok (not Maddy.isEqual /(?:)/g, /(?:)/gi), "RegExps with equivalent patterns and different flags are not equal"
+  @ok (not Maddy.isEqual /Maddy/gim, /Kit/gim), "RegExps with different patterns and equivalent flags are not equal"
+  @ok (not Maddy.isEqual /(?:)/gi, /(?:)/g), "Commutative equality is implemented for RegExps"
+  @ok (not Maddy.isEqual /Kit/g, {source: \Kit, +global, -ignoreCase, -multiline}), "RegExps and RegExp-like objects are not equal"
+
+  # Empty arrays and objects.
+  @ok (Maddy.isEqual {}, {}), "Empty object literals are equal"
+  @ok (Maddy.isEqual [], []), "Empty array literals are equal"
+  @ok (Maddy.isEqual [{}], [{}]), "Empty nested arrays and objects are equal"
+  @ok (not Maddy.isEqual {}, []), "Object literals and array literals are not equal"
+  @ok (not Maddy.isEqual [], {}), "Commutative equality is implemented for objects and arrays"
+  @ok (not Maddy.isEqual length: 0, []), "Array-like objects and arrays are not equal"
+  @ok (not Maddy.isEqual [], length: 0), "Commutative equality is implemented for array-like objects"
+
+  # Arrays with primitive and object values.
+  @ok (Maddy.isEqual [1 \Kit true], [1 \Kit true]), "Arrays containing identical primitives are equal"
+  @ok (Maddy.isEqual [/Maddy/g new Date(1994, 6, 3)], [/Maddy/g, new Date(1994, 6, 3)]), "Arrays containing equivalent elements are equal"
+
+  # Multi-dimensional arrays.
+  A = [new Number(47), new Boolean, new String(\Kit), /Maddy/, new Date(1993, 5, 2), [\running \biking \programming], a: 47]
+  B = [new Number(47), false, \Kit, /Maddy/, new Date(1993, 5, 2), [\running \biking new String(\programming)] a: new Number(47)]
+  @ok (Maddy.isEqual A, B), "Arrays containing nested arrays and objects are recursively compared"
+
+  # Overwrite the methods defined in ES 5.1 section 15.4.4.
+  A.forEach = A.map = A.filter = A.every = A.indexOf = A.lastIndexOf = A.some = A.reduce = A.reduceRight = null
+  B.join = B.pop = B.reverse = B.shift = B.slice = B.splice = B.concat = B.sort = B.unshift = null
+
+  # Array elements and properties.
+  @ok (Maddy.isEqual A, B), "Arrays containing equivalent elements and different non-numeric properties are equal"
+  A.push "White Rocks"
+  @ok (not Maddy.isEqual A, B), "Arrays of different lengths are not equal"
+  A.push "East Boulder"
+  B.push "Gunbarrel Ranch", "Teller Farm"
+  @ok (not Maddy.isEqual A, B), "Arrays of identical lengths containing different elements are not equal"
+
+  # Sparse arrays.
+  @ok (Maddy.isEqual Array(3), Array(3)), "Sparse arrays of identical lengths are equal"
+  @ok (not Maddy.isEqual Array(3), Array(6)), "Sparse arrays of different lengths are not equal"
+
+  # According to the Microsoft deviations spec, section 2.1.26, JScript 5.x treats `undefined`
+  # elements in arrays as elisions. Thus, sparse arrays and dense arrays containing `undefined`
+  # values are equivalent.
+  if 0 in [void]
+    @ok (not Maddy.isEqual Array(3), [void void void]), "Sparse and dense arrays are not equal"
+    @ok (not Maddy.isEqual [void void void], Array(3)), "Commutative equality is implemented for sparse and dense arrays"
+
+  # Simple objects.
+  @ok (Maddy.isEqual {a: \Maddy, b: 1, +c}, {a: \Maddy, b: 1, +c}), "Objects containing identical primitives are equal"
+  @ok (Maddy.isEqual {a: /Kit/g, b: new Date 1993, 5, 2}, {a: /Kit/g, b: new Date 1993, 5, 2}), "Objects containing equivalent members are equal"
+  @ok (not Maddy.isEqual {a: 63 b: 75}, {a: 61 b: 55}), "Objects of identical sizes with different values are not equal"
+  @ok (not Maddy.isEqual {a: 63 b: 75}, {a: 61 c: 55}), "Objects of identical sizes with different property names are not equal"
+  @ok (not Maddy.isEqual {a: 1 b: 2}, a: 1), "Objects of different sizes are not equal"
+  @ok (not Maddy.isEqual a: 1, {a: 1, b: 2}), "Commutative equality is implemented for objects"
+  @ok (not Maddy.isEqual {x: 1 y: void}, {x: 1 z: 2}), "Objects with identical keys and different values are not equivalent"
+
+  # `A` contains nested objects and arrays.
+  A =
+    name: new String "Kit Cambridge"
+    age: 18
+    developer: true
+    hobbies: [new String(\running), \biking, \programming]
+    coords: 
+      intersection: ["75th Street", new String "East Boulder Trail"]
+      latitude: 40.07
+      longitude: new Number -105.178
+
+  # `B` contains equivalent nested objects and arrays.
+  B =
+    name: "Kit Cambridge"
+    age: new Number(18)
+    developer: new Boolean(true)
+    hobbies: [\running \biking new String(\programming)]
+    coords: 
+      intersection: [new String("75th Street"), "East Boulder Trail"]
+      latitude: new Number 40.07
+      longitude: -105.178
+
+  @ok (Maddy.isEqual A, B), "Objects with nested equivalent members are recursively compared"
+
+  # Override `Object.prototype` properties.
+  A.constructor = A.hasOwnProperty = A.isPrototypeOf = A.propertyIsEnumerable = A.toString = A.toLocaleString = A.valueOf = null
+  B.constructor = B.hasOwnProperty = B.isPrototypeOf = B.propertyIsEnumerable = null
+
+  # Inherited and direct properties.
+  @ok (not Maddy.isEqual A, B), "Objects with different own properties are not equal"
+  B.toString = B.toLocaleString = B.valueOf = null
+  @ok (Maddy.isEqual A, B), "Objects with identical own properties are equal"
+
+  # Instances.
+  @ok (Maddy.isEqual new First, new First), "Object instances are equal"
+  @ok (Maddy.isEqual new First, new Second), "Objects with different constructors and identical own properties are equal"
+  @ok (Maddy.isEqual toString: new Number(1), new First), "Object instances and objects sharing equivalent properties are identical"
+  @ok (not Maddy.isEqual toString: 2, new Second), "The prototype chain of objects should not be examined"
+
+  # Circular Arrays.
+  (A = []).push A
+  (B = []).push B
+  @ok (Maddy.isEqual A, B), "Arrays containing circular references are equal"
+  A.push new String \Kit
+  B.push \Kit
+  @ok (Maddy.isEqual A, B), "Arrays containing circular references and equivalent properties are equal"
+  A.push \John-David
+  B.push new String \Maddy
+  @ok (not Maddy.isEqual A, B), "Arrays containing circular references and different properties are not equal"
+
+  # Circular Objects.
+  A = abc: null
+  B = abc: null
+  A.abc = A
+  B.abc = B
+  @ok (Maddy.isEqual A, B), "Objects containing circular references are equal"
+  A.def = new Number 75
+  B.def = 75
+  @ok (Maddy.isEqual A, B), "Objects containing circular references and equivalent properties are equal"
+  A.def = 75
+  B.def = new Number 63
+  @ok (not Maddy.isEqual A, B), "Objects containing circular references and different properties are not equal"
+
+  # Cyclic Structures.
+  A = [abc: null]
+  B = [abc: null]
+  (A.0.abc = A).push A
+  (B.0.abc = B).push B
+  @ok (Maddy.isEqual A, B), "Cyclic structures are equal"
+  A.0.def = new String \Kit
+  B.0.def = \Kit
+  @ok (Maddy.isEqual A, B), "Cyclic structures containing equivalent properties are equal"
+  A.0.def = \Kit
+  B.0.def = new String \Maddy
+  @ok (not Maddy.isEqual A, B), "Cyclic structures containing different properties are not equal"
+
+  # Complex Circular References.
+  A = foo: b: foo: c: foo: null
+  B = foo: b: foo: c: foo: null
+  A.foo.b.foo.c.foo = A
+  B.foo.b.foo.c.foo = B
+  @ok (Maddy.isEqual A, B), "Cyclic structures with nested and identically-named properties are equal"
+
+  # 86-88 assertions, depending on the environment.
+  @done!
+
+spec.add \stringify, ->
+  # `null` and invalid values.
+  @equal Maddy.stringify(null), \null, "`null` is serialized as-is"
+  @equal Maddy.stringify!, \null, "`undefined` values are converted to `null`"
+  @equal Maddy.stringify(Infinity), \null, "`Infinity` is converted to `null`"
+  @equal Maddy.stringify(NaN), \null, "`NaN` is converted to `null`"
+  @equal Maddy.stringify(->), \null, "Functions are converted to `null`"
+
+  # RegExps.
+  @equal Maddy.stringify(/Kit/), """{"source": "Kit", "global": false, "ignoreCase": false, "multiline": false}""", "RegExps are serialized as standard objects"
+  @equal Maddy.stringify(/Maddy/gi), """{"source": "Maddy", "global": true, "ignoreCase": true, "multiline": false}""", "RegExp flags set the corresponding properties accordingly"
+
+  # Booleans.
+  @equal Maddy.stringify(true), \true, "`true` is serialized as-is"
+  @equal Maddy.stringify(new Boolean false), \false, "`false` is serialized as-is"
+
+  # Strings.
+  @equal Maddy.stringify(\Kit), \"Kit", "String values are double-quoted"
+  @equal Maddy.stringify(new String \\\"Hello\bworld\tthis\nis\fnice\r"), \"\\\\\\"Hello\\bworld\\tthis\\nis\\fnice\\r\\"", "All control characters are escaped"
+
+  # Dates.
+  @equal Maddy.stringify(new Date 1994, 6, 3), \"1994-07-03T06:00:00.000Z", "Dates are serialized using the simplified date time string format"
+  @equal Maddy.stringify(new Date 1993, 5, 2, 2, 10, 28, 224), \"1993-06-02T08:10:28.224Z", "The date time string conforms to the format outlined in the spec"
+
+  # Arrays.
+  @equal Maddy.stringify([new Boolean, new Number(1), new String \Maddy]), """[false, 1, "Maddy"]""", "Arrays are recursively serialized"
+  (A = []).push 1, A, 2, A, 3, A
+  @equal Maddy.stringify(A), "[1, null, 2, null, 3, null]", "Circular array references are replaced with `null`"
+
+  # Objects. While most environments preserve definition order when enumerating object keys, this
+  # behavior is unspecified in ES 5.1 section 12.6.4; thus, the following tests may fail in some
+  # environments.
+  @equal Maddy.stringify(jdalton: \John-David, kitcam: \Kit, M_J: \Maddy), """{"jdalton": "John-David", "kitcam": "Kit", "M_J": "Maddy"}""", "Objects are recursively serialized"
+  (A = def: null).def = A
+  @equal Maddy.stringify(A), """{"def": null}""", "Circular object references are replaced with `null`"
+
+  # Complex circular references.
+  cyclic = foo: b: foo: c: foo: null
+  cyclic.foo.b.foo.c.foo = cyclic
+  @equal Maddy.stringify(cyclic), """{"foo": {"b": {"foo": {"c": {"foo": null}}}}}""", "Complex circular references are serialized correctly"
+
+  @done 18
+
+spec.add "map, collect", ->
+  developers =
+    jdalton: name: \John-David, age: 29
+    mathias: name: \Mathias, age: 23
+    kitcam: name: \Kit, age: 18
+
+  @error (-> Maddy.map null), /TypeError/, "`map` throws a `TypeError` if the callback function is omitted"
+
+  callback = (key, value) -> value[\name \age]
+  @deepEqual (Maddy.map developers, callback), jdalton: [\John-David 29] mathias: [\Mathias 23] kitcam: [\Kit 18], "`map` can transform the values of an object"
+
+  callback = (key, value) -> [key, value.age * @K]
+  @deepEqual (Maddy.collect developers, callback, K: 10), jdalton: [\jdalton 290] mathias: [\mathias 230] kitcam: [\kitcam 180], "`collect` accepts a `context` argument"
+
+  @done 3
+
+spec.add "fold, inject, reduce", ->
+  ages =
+    jdalton: 29
+    mathias: 23
+    M_J: 17
+
+  callback = (memo, name, age) -> memo + age
+  @error (-> Maddy.fold ages), /TypeError/, "`fold` throws a `TypeError` if the callback function is omitted"
+  @error (-> Maddy.fold ages, callback), /TypeError/, "`fold` throws a `TypeError` if the initial value is omitted"
+  @equal Maddy.inject(ages, callback, 0), 69, "`inject` can sum the numeric values of an object"
+
+  callback = (memo, name, age) -> memo[age * @K] = name; memo
+  @deepEqual Maddy.reduce(ages, callback, {}, K: 10), 290: \jdalton, 230: \mathias 170: \M_J, "`reduce` accepts a `context` argument"
+
+  @done 4
+
+spec.add "some, any", ->
+  languages =
+    JavaScript: 1996
+    Haskell: 1990
+    Perl: 1987
+    Python: 1991
+    Ruby: 1993
+
+  @ok (not Maddy.some {}, Maddy.identity 1), "`some` returns `false` for an empty object"
+  @ok (not Maddy.any {-Kit, -Mathias, -Maddy}, Maddy.identity 1), "`any` returns `false` for an object containing all falsy values"
+  @ok (Maddy.some {-Kit, -Mathias, +Maddy}, Maddy.identity 1), "`some` returns `true` for an object containing at least one truthy value"
+
+  @ok (Maddy.any languages, (key, value) -> key > "Delphi" and value > 1990), "`any` returns `true` if the object contains at least one matching member"
+  @ok (not Maddy.any languages, (key, value) -> key > "Visual Basic"), "`any` returns `false` if no matching members are found"
+
+  @done 5
+
+spec.add "select, findAll, filter", ->
+  libraries =
+    Prototype: 2005
+    jQuery: 2006
+    MooTools: 2006
+    YUI: 2005
+    Underscore: 2009
+
+  @deepEqual (Maddy.select libraries, (library, year) -> year > 2004), libraries, "`select` returns a shallow copy if all members match the specified criteria"
+  @deepEqual (Maddy.findAll libraries, (library) -> library < "Dojo"), {}, "`findAll` returns an empty set if no matching members are found"
+  @deepEqual (Maddy.filter libraries, (library, year) -> library > "Sencha" and year > 2007), Underscore: 2009, "`filter returns a set of members that match the specified criteria"  
+
+  @done 3
+
+spec.add "all, every", ->
+  languages =
+    JavaScript: 1996
+    Haskell: 1990
+    Perl: 1987
+    Python: 1991
+    Ruby: 1993
+
+  @ok (Maddy.all {}, Maddy.identity 1), "`all` is vacuously true for an empty object"
+  @ok (Maddy.every {+Kit, +Mathias, +Maddy}, Maddy.identity 1), "`every` returns `true` for an object containing all truthy values"
+  @ok (not Maddy.all {+Kit, -Mathias, +Maddy}, Maddy.identity 1), "`all` returns `false` for an object containing one or more falsy values"
+
+  @ok (not Maddy.every languages, (key, value) -> key > "Delphi" and value > 1990), "`every` returns `false` if one or more members do not match"
+  @ok (Maddy.all languages, (key, value) -> key < "Visual Basic"), "`all` returns `true` only if all members match the criteria"
+
+  @done 5
+
+spec.add \reject, ->
+  libraries =
+    Prototype: 2005
+    jQuery: 2006
+    MooTools: 2006
+    YUI: 2005
+    Underscore: 2009
+
+  @deepEqual (Maddy.reject libraries, (library) -> library > "Backbone"), {}, "`reject` returns an empty set if all members match the specified criteria"
+  @deepEqual (Maddy.reject libraries, (library, year) -> library < "Qooxdoo" or year < 2006), jQuery: 2006, Underscore: 2009, "`reject` returns a set of members that do not match the specified criteria"
+  @deepEqual (Maddy.reject libraries, (library, year) -> year > 2009), libraries, "`reject` returns a shallow copy if no members match the specified criteria"
+
+  @done 3
+
+spec.add "invoke, send", ->
+  names =
+    jdalton: [\John-David 29 {+glasses} \programmer]
+    kitcam: [\Kit 18 {+glasses} \programmer]
+    M_J: [\Maddy 17 {-glasses} \runner]
+
+  # `pop` directly modifies an array; thus, the `names` object is mutated following the first
+  # assertion.
+  @deepEqual (Maddy.send names, \pop), jdalton: \programmer kitcam: \programmer M_J: \runner, "`send` invokes a method on every member value"
+  @deepEqual (Maddy.invoke names, \slice, 1, -1), jdalton: [29] kitcam: [18] M_J: [17], "`invoke` accepts optional arguments for each method"
+
+  @done 2
+
+spec.add \max, ->
+  names =
+    jdalton: name: \John-David, age: 29
+    M_J: name: \Maddy, age: 17
+    kitcam: name: \Kit, age: 18
+
+  @equal (Maddy.max names, (name, {age}) -> age), \jdalton, "`max` returns the maximum member value as computed by the callback function"
+  @done 1
+
+spec.add \min, ->
+  names =
+    jdalton: name: \John-David, age: 29
+    M_J: name: \Maddy, age: 17
+    kitcam: name: \Kit, age: 18
+
+  @equal (Maddy.min names, (name, {age}) -> age), \M_J, "`min` returns the minimum member value as computed by the callback function"
+  @done 1
+
+spec.add \partition, ->
+  names =
+    jdalton: "John-David Dalton"
+    mathias: "Mathias Bynens"
+    kitcam: "Kit Cambridge"
+    M_J: "Maddy Jalbert"
+
+  results = [{
+    jdalton: "John-David Dalton"
+    mathias: "Mathias Bynens"
+  }, {
+    kitcam: "Kit Cambridge"
+    M_J: "Maddy Jalbert"
+  }]
+
+  @deepEqual (Maddy.partition names, (user, name) -> name.length > 13), results, "`partition` separates object members using the criteria specified by the callback"
+  @done 1
+
+spec.add \groupBy, ->
+  guests =
+    Kit: \lasagna
+    Mathias: \sushi
+    Maddy: \lasagna
+    Alex: \soup
+    Sam: \pierogi
+    Jeremy: \sushi
+    Tom: \sushi
+
+  groups =
+    lasagna: Kit: \lasagna, Maddy: \lasagna
+    sushi: Mathias: \sushi, Jeremy: \sushi, Tom: \sushi
+    soup: Alex: \soup
+    pierogi: Sam: \pierogi
+
+  @deepEqual (Maddy.groupBy guests, (name, food) -> food), groups, "`groupBy` groups members using the criteria specified by the callback"
+  @done 1
+
+spec.add \keys, ->
+  exception = /TypeError/
+  sparse = Array 10
+  names =
+    jdalton: \John-David
+    mathias: \Mathias
+    M_J: \Maddy
+
+  # Most browsers enumerate keys in the order in which they were defined, though this behavior is
+  # unspecified in ES 5.1 section 12.6.4.
+  @deepEqual Maddy.keys(names), [\jdalton \mathias \M_J], "`keys` should return an array of direct property names"
+
+  # Sparse arrays.
+  sparse.push 1
+  @deepEqual Maddy.keys(sparse), [\10], "A sparse array should contain only one key"
+
+  @error (-> Maddy.keys null), exception, "`null` should throw a `TypeError"
+  @error (-> Maddy.keys!), exception, "`undefined` should throw a `TypeError"
+  @error (-> Maddy.keys 1), exception, "`Number primitives should throw a `TypeError"
+  @error (-> Maddy.keys \Maddy), exception, "String primitives should throw a `TypeError"
+  @error (-> Maddy.keys true), exception, "Boolean primitives should throw a `TypeError"
+
+  @done 7
+
+spec.add \values, ->
+  runners =
+    kitcam: \Kit
+    M_J: \Maddy
+
+  @deepEqual Maddy.values(runners), [\Kit \Maddy], "`values` should return an array of direct property values"
+  @done 1
+
+spec.add \extend, ->
+  @deepEqual (Maddy.extend {}, a: \b), a: \b, "`extend` can copy source properties to the target object"
+  @deepEqual (Maddy.extend {a: \x}, {a: \b}), a: \b, "Non-unique source properties should overwrite destination properties"
+  @deepEqual (Maddy.extend {x: \x}, {a: \b}), x: \x, a: \b, "Unique source properties should be copied to the target object"
+  @deepEqual (Maddy.extend {x: \x}, {a: \a, x: 2}, {a: \b}), x: 2, a: \b, "The last defined property should be used when multiple source objects are provided"
+
+  @done 4
+
+spec.add \isEmpty, ->
+  # Constructor with no direct properties and one shadowed prototype property
+  class Class then ::toString = 1
+  kit = kitcam: \Kit
+
+  @ok Maddy.isEmpty(null), "`null` is empty"
+  @ok Maddy.isEmpty!, "`undefined` is empty"
+  @ok Maddy.isEmpty([]), "Empty array"
+  @ok Maddy.isEmpty({}), "Empty object literal"
+  @ok Maddy.isEmpty(new Class), "Empty object instance"
+  @ok Maddy.isEmpty(""), "Zero-length string primitive"
+  @ok Maddy.isEmpty(new String), "Zero-length string object"
+  @ok Maddy.isEmpty(/(?:)/), "Empty RegExp"
+
+  @ok not Maddy.isEmpty(\John-David), "Non-empty string primitive"
+  @ok not Maddy.isEmpty(/Maddy/), "Non-empty RegExp"
+  @ok not Maddy.isEmpty(new Date), "Date object"
+  @ok not Maddy.isEmpty(false), "Boolean primitive"
+  @ok not Maddy.isEmpty([1]), "Array with one element"
+  @ok not Maddy.isEmpty(kit), "Object literal with one member"
+
+  delete kit.kitcam
+  @ok Maddy.isEmpty(kit), "Removing all direct properties from an object should empty it"
+
+  @done 15
+
+# Export the spec.
+if typeof define is \function and define.amd?
+  # Export unit tests for asynchronous module loaders.
+  define -> spec
+else if document? and \onload in @
+  # Run the unit tests on page load in web browsers.
+  @onload = -> spec.run!
+else
+  # Automatically run the unit tests in other environments.
+  spec.run!
