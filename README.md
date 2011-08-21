@@ -18,7 +18,7 @@ If you're a [Node](http://nodejs.org/) user, Maddy is available on [npm](http://
 
     $ {sudo} npm install {-g} maddy
 
-The [annotated source code](http://kitcambridge.github.com/maddy/docs/) is available for your perusal.
+The [annotated source code](http://kitcambridge.github.com/maddy/docs/maddy.html) is available for your perusal.
 
 ## Compatibility
 
