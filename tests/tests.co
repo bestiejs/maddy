@@ -125,6 +125,30 @@ else
 if document? and require? then spec.add "Async Module Loader Compatibility", ->
   setTimeout ~> @equal(Associative.version, Maddy.version, "Maddy is compatible with async module loaders").done 1
 
+spec.add \curry, ->
+  # Basic partial application. Based on an example by Angus Croll.
+  # See http://javascriptweblog.wordpress.com/2010/04/05/curry-cooking-up-tastier-functions.
+  units = (ratio, symbol, input) -> [(input * ratio).toFixed(1), symbol].join " "
+
+  @equal Maddy.curry(units), units, "The original function is returned if no arguments were specified for partial application"
+  @equal Maddy.curry(units, 2.2, \lbs.)(4), "8.8 lbs.", "Two of three arguments specified for partial application; curried function called with one argument"
+  @equal Maddy.curry(units, 1.75)("imperial pints", 2.4), "4.2 imperial pints", "One of three arguments specified for partial application; curried function called with two arguments"
+  @equal Maddy.curry(units, 1.98, "U.S. pints", 2.4)(), "4.8 U.S. pints", "All required arguments specified for partial application; curried function called with no arguments"
+  @equal Maddy.curry(units, 1.62, "km", 34)(1, 2, 3), "55.1 km", "The original function ignores any additional arguments passed to the curried function"
+
+  # Curried functions and context.
+  truncate = (length, truncation) ->
+    return String @ if truncation!?
+    lastIndex = length - truncation.length
+    if lastIndex > 0 then @slice(0, lastIndex) + truncation else truncation
+
+  @equal Maddy.curry(truncate).call("Kit Cambridge", 10, \...), "Kit Cam...", "No arguments specified for partial application; original function can be invoked on a string primitive"
+  @equal Maddy.curry(truncate, 8).call("Mathias Bynens", \~), "Mathias~", "One argument specified for partial application; curried function can be invoked on a string primitive"
+  @equal Maddy.curry(truncate, 6, \-).call("Maddy Jalbert"), "Maddy-", "All required arguments specified for partial application; string truncated accordingly"
+  @equal Maddy.curry(truncate, 4).call("John-David Dalton"), "John-David Dalton", "One of two required arguments passed to the curried function; string not truncated"
+
+  @done 9
+
 spec.add \isPropertyOf, ->
   # A sample constructor function with direct and inherited properties.
   class Class

@@ -124,6 +124,34 @@
       });
     });
   }
+  spec.add('curry', function(){
+    var units, truncate;
+    units = function(ratio, symbol, input){
+      return [(input * ratio).toFixed(1), symbol].join(" ");
+    };
+    this.equal(Maddy.curry(units), units, "The original function is returned if no arguments were specified for partial application");
+    this.equal(Maddy.curry(units, 2.2, 'lbs.')(4), "8.8 lbs.", "Two of three arguments specified for partial application; curried function called with one argument");
+    this.equal(Maddy.curry(units, 1.75)("imperial pints", 2.4), "4.2 imperial pints", "One of three arguments specified for partial application; curried function called with two arguments");
+    this.equal(Maddy.curry(units, 1.98, "U.S. pints", 2.4)(), "4.8 U.S. pints", "All required arguments specified for partial application; curried function called with no arguments");
+    this.equal(Maddy.curry(units, 1.62, "km", 34)(1, 2, 3), "55.1 km", "The original function ignores any additional arguments passed to the curried function");
+    truncate = function(length, truncation){
+      var lastIndex;
+      if (truncation == null) {
+        return String(this);
+      }
+      lastIndex = length - truncation.length;
+      if (lastIndex > 0) {
+        return this.slice(0, lastIndex) + truncation;
+      } else {
+        return truncation;
+      }
+    };
+    this.equal(Maddy.curry(truncate).call("Kit Cambridge", 10, '...'), "Kit Cam...", "No arguments specified for partial application; original function can be invoked on a string primitive");
+    this.equal(Maddy.curry(truncate, 8).call("Mathias Bynens", '~'), "Mathias~", "One argument specified for partial application; curried function can be invoked on a string primitive");
+    this.equal(Maddy.curry(truncate, 6, '-').call("Maddy Jalbert"), "Maddy-", "All required arguments specified for partial application; string truncated accordingly");
+    this.equal(Maddy.curry(truncate, 4).call("John-David Dalton"), "John-David Dalton", "One of two required arguments passed to the curried function; string not truncated");
+    return this.done(9);
+  });
   spec.add('isPropertyOf', function(){
     var Class;
     Class = (function(){
