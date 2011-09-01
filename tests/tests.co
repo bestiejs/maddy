@@ -385,7 +385,7 @@ spec.add \isEqual, Maddy.curry ({isEqual}) ->
     age: 18
     developer: true
     hobbies: [new String(\running), \biking, \programming]
-    coords: 
+    coords:
       intersection: ["75th Street", new String "East Boulder Trail"]
       latitude: 40.07
       longitude: new Number -105.178
@@ -396,7 +396,7 @@ spec.add \isEqual, Maddy.curry ({isEqual}) ->
     age: new Number(18)
     developer: new Boolean(true)
     hobbies: [\running \biking new String(\programming)]
-    coords: 
+    coords:
       intersection: [new String("75th Street"), "East Boulder Trail"]
       latitude: new Number 40.07
       longitude: -105.178
@@ -569,7 +569,7 @@ spec.add "select, findAll, filter", Maddy.curry ({select, findAll, filter}) ->
 
   @deepEqual (select (library, year) -> (year > 2004), libraries), libraries, "`select` returns a shallow copy if all members match the specified criteria"
   @deepEqual (findAll (library) -> (library < "Dojo"), libraries), {}, "`findAll` returns an empty set if no matching members are found"
-  @deepEqual (filter (library, year) -> (library > "Sencha" and year > 2007), libraries), Underscore: 2009, "`filter returns a set of members that match the specified criteria"  
+  @deepEqual (filter (library, year) -> (library > "Sencha" and year > 2007), libraries), Underscore: 2009, "`filter returns a set of members that match the specified criteria"
 
   @done 3
 , Maddy
@@ -728,26 +728,31 @@ spec.add \isEmpty, Maddy.curry ({isEmpty}) ->
   class Class then ::toString = 1
   kit = kitcam: \Kit
 
-  @ok isEmpty(null), "`null` is empty"
-  @ok isEmpty!, "`undefined` is empty"
-  @ok isEmpty([]), "Empty array"
-  @ok isEmpty({}), "Empty object literal"
-  @ok isEmpty(new Class), "Empty object instance"
-  @ok isEmpty(""), "Zero-length string primitive"
-  @ok isEmpty(new String), "Zero-length string object"
-  @ok isEmpty(/(?:)/), "Empty RegExp"
+  @ok isEmpty(null), "`null` is an empty value"
+  @ok isEmpty!, "`undefined` is an empty value"
+  @ok isEmpty(NaN), "`NaN` is indeterminate"
+  @ok isEmpty(Infinity), "`Infinity` is indeterminate"
+  @ok isEmpty(-Infinity), "`-Infinity` is indeterminate"
+  @ok isEmpty(new Date "M"), "Invalid dates are indeterminate"
 
-  @ok not isEmpty(\John-David), "Non-empty string primitive"
-  @ok not isEmpty(/Maddy/), "Non-empty RegExp"
-  @ok not isEmpty(new Date), "Date object"
-  @ok not isEmpty(false), "Boolean primitive"
-  @ok not isEmpty([1]), "Array with one element"
-  @ok not isEmpty(kit), "Object literal with one member"
+  @ok isEmpty([]), "Zero-length array literals are empty"
+  @ok isEmpty({}), "Zero-member object literals are empty"
+  @ok isEmpty(new Class), "Object instances with no direct properties are empty"
+  @ok isEmpty(""), "Zero-length string primitives are empty"
+  @ok isEmpty(new String), "Zero-length string objects are empty"
+  @ok isEmpty(/(?:)/), "RegExps that conform to the empty expression pattern defined in section 7.8.5 are empty"
+
+  @ok not isEmpty(\John-David), "Strings containing one or more characters are not empty"
+  @ok not isEmpty(/Maddy/), "RegExps containing a non-empty pattern are not empty"
+  @ok not isEmpty(new Date), "Valid dates are not empty"
+  @ok not isEmpty(false), "Boolean primitives are not empty"
+  @ok not isEmpty([1, 2, 3]), "Arrays containing one or more elements are not empty"
+  @ok not isEmpty(kit), "Object literals with one or members are not empty"
 
   delete kit.kitcam
   @ok isEmpty(kit), "Removing all direct properties from an object should empty it"
 
-  @done 15
+  @done 19
 , Maddy
 
 # Export the spec.

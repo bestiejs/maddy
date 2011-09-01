@@ -974,23 +974,27 @@
     kit = {
       kitcam: 'Kit'
     };
-    this.ok(isEmpty(null), "`null` is empty");
-    this.ok(isEmpty(), "`undefined` is empty");
-    this.ok(isEmpty([]), "Empty array");
-    this.ok(isEmpty({}), "Empty object literal");
-    this.ok(isEmpty(new Class), "Empty object instance");
-    this.ok(isEmpty(""), "Zero-length string primitive");
-    this.ok(isEmpty(new String), "Zero-length string object");
-    this.ok(isEmpty(/(?:)/), "Empty RegExp");
-    this.ok(!isEmpty('John-David'), "Non-empty string primitive");
-    this.ok(!isEmpty(/Maddy/), "Non-empty RegExp");
-    this.ok(!isEmpty(new Date), "Date object");
-    this.ok(!isEmpty(false), "Boolean primitive");
-    this.ok(!isEmpty([1]), "Array with one element");
-    this.ok(!isEmpty(kit), "Object literal with one member");
+    this.ok(isEmpty(null), "`null` is an empty value");
+    this.ok(isEmpty(), "`undefined` is an empty value");
+    this.ok(isEmpty(NaN), "`NaN` is indeterminate");
+    this.ok(isEmpty(Infinity), "`Infinity` is indeterminate");
+    this.ok(isEmpty(-Infinity), "`-Infinity` is indeterminate");
+    this.ok(isEmpty(new Date("M")), "Invalid dates are indeterminate");
+    this.ok(isEmpty([]), "Zero-length array literals are empty");
+    this.ok(isEmpty({}), "Zero-member object literals are empty");
+    this.ok(isEmpty(new Class), "Object instances with no direct properties are empty");
+    this.ok(isEmpty(""), "Zero-length string primitives are empty");
+    this.ok(isEmpty(new String), "Zero-length string objects are empty");
+    this.ok(isEmpty(/(?:)/), "RegExps that conform to the empty expression pattern defined in section 7.8.5 are empty");
+    this.ok(!isEmpty('John-David'), "Strings containing one or more characters are not empty");
+    this.ok(!isEmpty(/Maddy/), "RegExps containing a non-empty pattern are not empty");
+    this.ok(!isEmpty(new Date), "Valid dates are not empty");
+    this.ok(!isEmpty(false), "Boolean primitives are not empty");
+    this.ok(!isEmpty([1, 2, 3]), "Arrays containing one or more elements are not empty");
+    this.ok(!isEmpty(kit), "Object literals with one or members are not empty");
     delete kit.kitcam;
     this.ok(isEmpty(kit), "Removing all direct properties from an object should empty it");
-    return this.done(15);
+    return this.done(19);
   }, Maddy));
   if (typeof define === 'function' && define.amd != null) {
     define(function(){
