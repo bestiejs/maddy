@@ -740,11 +740,10 @@ spec.add \isEmpty, Maddy.curry ({isEmpty}) ->
   @ok isEmpty(new Class), "Object instances with no direct properties are empty"
   @ok isEmpty(""), "Zero-length string primitives are empty"
   @ok isEmpty(new String), "Zero-length string objects are empty"
-  @ok isEmpty(/(?:)/), "RegExps that conform to the empty expression pattern defined in section 7.8.5 are empty"
 
   @ok not isEmpty(\John-David), "Strings containing one or more characters are not empty"
-  @ok not isEmpty(/Maddy/), "RegExps containing a non-empty pattern are not empty"
   @ok not isEmpty(new Date), "Valid dates are not empty"
+  @ok not isEmpty(/(?:)/), "RegExps are not empty"
   @ok not isEmpty(false), "Boolean primitives are not empty"
   @ok not isEmpty([1, 2, 3]), "Arrays containing one or more elements are not empty"
   @ok not isEmpty(kit), "Object literals with one or members are not empty"
@@ -752,7 +751,7 @@ spec.add \isEmpty, Maddy.curry ({isEmpty}) ->
   delete kit.kitcam
   @ok isEmpty(kit), "Removing all direct properties from an object should empty it"
 
-  @done 19
+  @done 18
 , Maddy
 
 # Export the spec.

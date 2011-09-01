@@ -985,16 +985,15 @@
     this.ok(isEmpty(new Class), "Object instances with no direct properties are empty");
     this.ok(isEmpty(""), "Zero-length string primitives are empty");
     this.ok(isEmpty(new String), "Zero-length string objects are empty");
-    this.ok(isEmpty(/(?:)/), "RegExps that conform to the empty expression pattern defined in section 7.8.5 are empty");
     this.ok(!isEmpty('John-David'), "Strings containing one or more characters are not empty");
-    this.ok(!isEmpty(/Maddy/), "RegExps containing a non-empty pattern are not empty");
     this.ok(!isEmpty(new Date), "Valid dates are not empty");
+    this.ok(!isEmpty(/(?:)/), "RegExps are not empty");
     this.ok(!isEmpty(false), "Boolean primitives are not empty");
     this.ok(!isEmpty([1, 2, 3]), "Arrays containing one or more elements are not empty");
     this.ok(!isEmpty(kit), "Object literals with one or members are not empty");
     delete kit.kitcam;
     this.ok(isEmpty(kit), "Removing all direct properties from an object should empty it");
-    return this.done(19);
+    return this.done(18);
   }, Maddy));
   if (typeof define === 'function' && define.amd != null) {
     define(function(){
