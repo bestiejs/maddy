@@ -220,25 +220,27 @@ spec.add \forEach, Maddy.curry ({forEach, curry}) ->
 
   # Callback function arguments and explicitly returning `false`.
   size = 0
-  forEach new Class, (key, value, object) ~>
+  forEach (key, value, object) ~>
     size++
     @equal value, object[key], "The callback function accepts `key` and `value` arguments"
     false
+  , new Class
   @equal size, 1, "Explicitly returning `false` breaks the loop"
 
   # Enumeration of direct instance properties.
   size = 0
-  forEach new Class, (key, value) ~>
+  forEach (key, value) ~>
     size++
     switch key
     case \length then @equal value, 1, "The direct `length` property is enumerated"
     case \valueOf then @equal value, 2, "The direct `valueOf` property is enumerated"
     case \toString then @equal value, 3, "The shadowed `toString` property is enumerated once"
+  , new Class
   @equal size, 3, "The `Class` instance should contain three direct properties"
 
   # Enumeration of direct prototype properties.
   size = 0
-  forEach Class::, (key, value) ~>
+  forEach (key, value) ~>
     size++
     switch key
     case \constructor then @equal value, 4, "The direct `constructor` prototype property is enumerated"
@@ -247,11 +249,12 @@ spec.add \forEach, Maddy.curry ({forEach, curry}) ->
     case \isPrototypeOf then @equal value, 7, "The direct `isPrototypeOf` prototype property is enumerated"
     case \propertyIsEnumerable then @equal value, 8, "The direct `propertyIsEnumerable` prototype property is enumerated"
     case \hasOwnProperty then @equal value, 9, "The direct `hasOwnProperty` prototype property is enumerated"
+  , Class::
   @equal size, 6, "The `Class` prototype should contain six direct properties"
 
   # Normalizing the enumeration of the `prototype` property across environments.
   result = true
-  forEach Class, -> result := false if it is \prototype
+  forEach (-> result := false if it is \prototype), Class
   @ok result, "The `prototype` property of functions should not be enumerated"
 
   @done 14
@@ -513,15 +516,13 @@ spec.add "map, collect", Maddy.curry ({map, collect}) ->
     mathias: name: \Mathias, age: 23
     kitcam: name: \Kit, age: 18
 
-  @error (-> map null), /TypeError/, "`map` throws a `TypeError` if the callback function is omitted"
-
   callback = (key, value) -> value[\name \age]
-  @deepEqual (map developers, callback), jdalton: [\John-David 29] mathias: [\Mathias 23] kitcam: [\Kit 18], "`map` can transform the values of an object"
+  @deepEqual (map callback, developers), jdalton: [\John-David 29] mathias: [\Mathias 23] kitcam: [\Kit 18], "`map` can transform the values of an object"
 
   callback = (key, value) -> [key, value.age * @K]
-  @deepEqual (collect developers, callback, K: 10), jdalton: [\jdalton 290] mathias: [\mathias 230] kitcam: [\kitcam 180], "`collect` accepts a `context` argument"
+  @deepEqual (collect callback, K: 10, developers), jdalton: [\jdalton 290] mathias: [\mathias 230] kitcam: [\kitcam 180], "`collect` accepts a `context` argument"
 
-  @done 3
+  @done 2
 , Maddy
 
 spec.add "fold, inject, reduce", Maddy.curry ({fold, inject, reduce}) ->
@@ -531,14 +532,13 @@ spec.add "fold, inject, reduce", Maddy.curry ({fold, inject, reduce}) ->
     M_J: 17
 
   callback = (memo, name, age) -> memo + age
-  @error (-> fold ages), /TypeError/, "`fold` throws a `TypeError` if the callback function is omitted"
-  @error (-> fold ages, callback), /TypeError/, "`fold` throws a `TypeError` if the initial value is omitted"
-  @equal inject(ages, callback, 0), 69, "`inject` can sum the numeric values of an object"
+  @error (-> fold callback, ages), /TypeError/, "`fold` throws a `TypeError` if the initial value is omitted"
+  @equal inject(callback, 0, ages), 69, "`inject` can sum the numeric values of an object"
 
   callback = (memo, name, age) -> memo[age * @K] = name; memo
-  @deepEqual reduce(ages, callback, {}, K: 10), 290: \jdalton, 230: \mathias 170: \M_J, "`reduce` accepts a `context` argument"
+  @deepEqual reduce(callback, K: 10, {}, ages), 290: \jdalton, 230: \mathias 170: \M_J, "`reduce` accepts a `context` argument"
 
-  @done 4
+  @done 3
 , Maddy
 
 spec.add "some, any", Maddy.curry ({some, any}) ->
@@ -549,12 +549,12 @@ spec.add "some, any", Maddy.curry ({some, any}) ->
     Python: 1991
     Ruby: 1993
 
-  @ok (not some {}, K), "`some` returns `false` for an empty object"
-  @ok (not any {-Kit, -Mathias, -Maddy}, K), "`any` returns `false` for an object containing all falsy values"
-  @ok (some {-Kit, -Mathias, +Maddy}, K), "`some` returns `true` for an object containing at least one truthy value"
+  @ok (not some K, {}), "`some` returns `false` for an empty object"
+  @ok (not any K, {-Kit, -Mathias, -Maddy}), "`any` returns `false` for an object containing all falsy values"
+  @ok (some K, {-Kit, -Mathias, +Maddy}), "`some` returns `true` for an object containing at least one truthy value"
 
-  @ok (any languages, (key, value) -> key > "Delphi" and value > 1990), "`any` returns `true` if the object contains at least one matching member"
-  @ok (not any languages, (key, value) -> key > "Visual Basic"), "`any` returns `false` if no matching members are found"
+  @ok (any (key, value) -> (key > "Delphi" and value > 1990), languages), "`any` returns `true` if the object contains at least one matching member"
+  @ok (not any (key, value) -> (key > "Visual Basic"), languages), "`any` returns `false` if no matching members are found"
 
   @done 5
 , Maddy
@@ -567,9 +567,9 @@ spec.add "select, findAll, filter", Maddy.curry ({select, findAll, filter}) ->
     YUI: 2005
     Underscore: 2009
 
-  @deepEqual (select libraries, (library, year) -> year > 2004), libraries, "`select` returns a shallow copy if all members match the specified criteria"
-  @deepEqual (findAll libraries, (library) -> library < "Dojo"), {}, "`findAll` returns an empty set if no matching members are found"
-  @deepEqual (filter libraries, (library, year) -> library > "Sencha" and year > 2007), Underscore: 2009, "`filter returns a set of members that match the specified criteria"  
+  @deepEqual (select (library, year) -> (year > 2004), libraries), libraries, "`select` returns a shallow copy if all members match the specified criteria"
+  @deepEqual (findAll (library) -> (library < "Dojo"), libraries), {}, "`findAll` returns an empty set if no matching members are found"
+  @deepEqual (filter (library, year) -> (library > "Sencha" and year > 2007), libraries), Underscore: 2009, "`filter returns a set of members that match the specified criteria"  
 
   @done 3
 , Maddy
@@ -582,12 +582,12 @@ spec.add "all, every", Maddy.curry ({all, every}) ->
     Python: 1991
     Ruby: 1993
 
-  @ok (all {}, K), "`all` is vacuously true for an empty object"
-  @ok (every {+Kit, +Mathias, +Maddy}, K), "`every` returns `true` for an object containing all truthy values"
-  @ok (not all {+Kit, -Mathias, +Maddy}, K), "`all` returns `false` for an object containing one or more falsy values"
+  @ok (all K, {}), "`all` is vacuously true for an empty object"
+  @ok (every K, {+Kit, +Mathias, +Maddy}), "`every` returns `true` for an object containing all truthy values"
+  @ok (not all K, {+Kit, -Mathias, +Maddy}), "`all` returns `false` for an object containing one or more falsy values"
 
-  @ok (not every languages, (key, value) -> key > "Delphi" and value > 1990), "`every` returns `false` if one or more members do not match"
-  @ok (all languages, (key, value) -> key < "Visual Basic"), "`all` returns `true` only if all members match the criteria"
+  @ok (not every (key, value) -> (key > "Delphi" and value > 1990), languages), "`every` returns `false` if one or more members do not match"
+  @ok (all (key, value) -> (key < "Visual Basic"), languages), "`all` returns `true` only if all members match the criteria"
 
   @done 5
 , Maddy
@@ -600,9 +600,9 @@ spec.add \reject, Maddy.curry ({reject}) ->
     YUI: 2005
     Underscore: 2009
 
-  @deepEqual (reject libraries, (library) -> library > "Backbone"), {}, "`reject` returns an empty set if all members match the specified criteria"
-  @deepEqual (reject libraries, (library, year) -> library < "Qooxdoo" or year < 2006), jQuery: 2006, Underscore: 2009, "`reject` returns a set of members that do not match the specified criteria"
-  @deepEqual (reject libraries, (library, year) -> year > 2009), libraries, "`reject` returns a shallow copy if no members match the specified criteria"
+  @deepEqual (reject (library) -> (library > "Backbone"), libraries), {}, "`reject` returns an empty set if all members match the specified criteria"
+  @deepEqual (reject (library, year) -> (library < "Qooxdoo" or year < 2006), libraries), jQuery: 2006, Underscore: 2009, "`reject` returns a set of members that do not match the specified criteria"
+  @deepEqual (reject (library, year) -> (year > 2009), libraries), libraries, "`reject` returns a shallow copy if no members match the specified criteria"
 
   @done 3
 , Maddy
@@ -627,7 +627,7 @@ spec.add \max, Maddy.curry ({max}) ->
     M_J: name: \Maddy, age: 17
     kitcam: name: \Kit, age: 18
 
-  @equal (max names, (name, {age}) -> age), \jdalton, "`max` returns the maximum member value as computed by the callback function"
+  @equal (max (name, {age}) -> age, names), \jdalton, "`max` returns the maximum member value as computed by the callback function"
   @done 1
 , Maddy
 
@@ -637,7 +637,7 @@ spec.add \min, Maddy.curry ({min}) ->
     M_J: name: \Maddy, age: 17
     kitcam: name: \Kit, age: 18
 
-  @equal (min names, (name, {age}) -> age), \M_J, "`min` returns the minimum member value as computed by the callback function"
+  @equal (min (name, {age}) -> age, names), \M_J, "`min` returns the minimum member value as computed by the callback function"
   @done 1
 , Maddy
 
@@ -656,7 +656,7 @@ spec.add \partition, Maddy.curry ({partition}) ->
     M_J: "Maddy Jalbert"
   }]
 
-  @deepEqual (partition names, (user, name) -> name.length > 13), results, "`partition` separates object members using the criteria specified by the callback"
+  @deepEqual (partition (user, name) -> (name.length > 13), names), results, "`partition` separates object members using the criteria specified by the callback"
   @done 1
 , Maddy
 
@@ -676,7 +676,7 @@ spec.add \groupBy, Maddy.curry ({groupBy}) ->
     soup: Alex: \soup
     pierogi: Sam: \pierogi
 
-  @deepEqual (groupBy guests, (name, food) -> food), groups, "`groupBy` groups members using the criteria specified by the callback"
+  @deepEqual (groupBy (name, food) -> food, guests), groups, "`groupBy` groups members using the criteria specified by the callback"
   @done 1
 , Maddy
 
