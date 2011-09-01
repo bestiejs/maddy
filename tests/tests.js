@@ -1,5 +1,5 @@
 (function(){
-  var toString, document, Spec, Maddy, spec, print;
+  var toString, document, Spec, Maddy, spec, print, K;
   toString = {}.toString;
   document = this.document, Spec = this.Spec, Maddy = this.Maddy;
   Spec == null && (Spec = typeof require === 'function'
@@ -19,9 +19,6 @@
       var type, target, message, expected, actual, results, stats, status, element, name, queue, assertion, anticipated, data, provided, _ref, _i, _len;
       type = _arg.type, target = _arg.target, message = _arg.message, expected = _arg.expected, actual = _arg.actual;
       _ref = [document.getElementById('results'), document.getElementById('stats'), document.getElementById('status')], results = _ref[0], stats = _ref[1], status = _ref[2];
-      if (!(results && stats && status)) {
-        return;
-      }
       switch (type) {
       case 'start':
         for (_i = 0, _len = (_ref = [results, stats, status]).length; _i < _len; ++_i) {
@@ -34,10 +31,8 @@
         stats.appendChild(document.createTextNode('Running...'));
         break;
       case 'setup':
-        element = document.createElement('li');
-        element.className = 'running';
-        name = document.createElement('strong');
-        name.appendChild(document.createTextNode(target.name));
+        (element = document.createElement('li')).className = 'running';
+        (name = document.createElement('strong')).appendChild(document.createTextNode(target.name));
         name.onclick = onClick;
         element.appendChild(name);
         results.appendChild(element);
@@ -106,7 +101,7 @@
         print("Assertion: " + message + ".");
         break;
       case 'failure':
-        print("Failure: " + message + ". Expected: " + Maddy.stringify(expected) + ". Actual: " + Maddy.stringify(actual) + ".");
+        print("Failure: " + message + ". Expected: " + stringify(expected) + ". Actual: " + stringify(actual) + ".");
         break;
       case 'teardown':
         print("Finished test `" + target.name + "`. " + target.assertions + " assertions, " + target.failures + " failures.");
@@ -116,6 +111,9 @@
       }
     });
   }
+  K = function(key, value){
+    return value;
+  };
   if (document != null && (typeof require != 'undefined' && require !== null)) {
     spec.add("Async Module Loader Compatibility", function(){
       var _this = this;
@@ -124,16 +122,17 @@
       });
     });
   }
-  spec.add('curry', function(){
-    var units, truncate;
+  spec.add('curry', Maddy.curry(function(_arg){
+    var curry, units, truncate;
+    curry = _arg.curry;
     units = function(ratio, symbol, input){
       return [(input * ratio).toFixed(1), symbol].join(" ");
     };
-    this.equal(Maddy.curry(units), units, "The original function is returned if no arguments were specified for partial application");
-    this.equal(Maddy.curry(units, 2.2, 'lbs.')(4), "8.8 lbs.", "Two of three arguments specified for partial application; curried function called with one argument");
-    this.equal(Maddy.curry(units, 1.75)("imperial pints", 2.4), "4.2 imperial pints", "One of three arguments specified for partial application; curried function called with two arguments");
-    this.equal(Maddy.curry(units, 1.98, "U.S. pints", 2.4)(), "4.8 U.S. pints", "All required arguments specified for partial application; curried function called with no arguments");
-    this.equal(Maddy.curry(units, 1.62, "km", 34)(1, 2, 3), "55.1 km", "The original function ignores any additional arguments passed to the curried function");
+    this.equal(curry(units), units, "The original function is returned if no arguments were specified for partial application");
+    this.equal(curry(units, 2.2, 'lbs.')(4), "8.8 lbs.", "Two of three arguments specified for partial application; curried function called with one argument");
+    this.equal(curry(units, 1.75)("imperial pints", 2.4), "4.2 imperial pints", "One of three arguments specified for partial application; curried function called with two arguments");
+    this.equal(curry(units, 1.98, "U.S. pints", 2.4)(), "4.8 U.S. pints", "All required arguments specified for partial application; curried function called with no arguments");
+    this.equal(curry(units, 1.62, 'km', 34)(1, 2, 3), "55.1 km", "The original function ignores any additional arguments passed to the curried function");
     truncate = function(length, truncation){
       var lastIndex;
       if (truncation == null) {
@@ -146,14 +145,15 @@
         return truncation;
       }
     };
-    this.equal(Maddy.curry(truncate).call("Kit Cambridge", 10, '...'), "Kit Cam...", "No arguments specified for partial application; original function can be invoked on a string primitive");
-    this.equal(Maddy.curry(truncate, 8).call("Mathias Bynens", '~'), "Mathias~", "One argument specified for partial application; curried function can be invoked on a string primitive");
-    this.equal(Maddy.curry(truncate, 6, '-').call("Maddy Jalbert"), "Maddy-", "All required arguments specified for partial application; string truncated accordingly");
-    this.equal(Maddy.curry(truncate, 4).call("John-David Dalton"), "John-David Dalton", "One of two required arguments passed to the curried function; string not truncated");
+    this.equal(curry(truncate).call("Kit Cambridge", 10, '...'), "Kit Cam...", "No arguments specified for partial application; original function can be invoked on a string primitive");
+    this.equal(curry(truncate, 8).call("Mathias Bynens", '~'), "Mathias~", "One argument specified for partial application; curried function can be invoked on a string primitive");
+    this.equal(curry(truncate, 6, '-').call("Maddy Jalbert"), "Maddy-", "All required arguments specified for partial application; string truncated accordingly");
+    this.equal(curry(truncate, 4).call("John-David Dalton"), "John-David Dalton", "One of two required arguments passed to the curried function; string not truncated");
     return this.done(9);
-  });
-  spec.add('isPropertyOf', function(){
-    var Class;
+  }, Maddy));
+  spec.add('isPropertyOf', Maddy.curry(function(_arg){
+    var curry, isPropertyOf, Class, isDirect, isPrototype;
+    curry = _arg.curry, isPropertyOf = _arg.isPropertyOf;
     Class = (function(){
       Class.displayName = 'Class';
       var prototype = Class.prototype;
@@ -163,42 +163,46 @@
       prototype.isPrototypeOf = prototype.hasOwnProperty = prototype.valueOf = 1;
       return Class;
     }());
-    this.ok(Maddy.isPropertyOf(new Class, 'valueOf'), "The instance property `valueOf` shadows a property on the prototype");
-    this.ok(Maddy.isPropertyOf(new Class, 'toString'), "The instance property `toString` shadows a property on the prototype");
-    this.ok(Maddy.isPropertyOf(Class.prototype, 'hasOwnProperty'), "The prototype property `hasOwnProperty` shadows a property on `Object.prototype`");
-    this.ok(Maddy.isPropertyOf(Class.prototype, 'isPrototypeOf'), "The prototype property `isPrototypeOf` shadows a property on `Object.prototype`");
-    this.ok(Maddy.isPropertyOf(Class.prototype, 'valueOf'), "The prototype property `valueOf` shadows a property on `Object.prototype`");
-    this.ok(Maddy.isPropertyOf(Class, 'prototype'), "The constructor property `prototype` is a direct property");
-    this.ok(!Maddy.isPropertyOf(new Class, 'isPrototypeOf'), "`isPrototypeOf` is an inherited property");
-    this.ok(!Maddy.isPropertyOf(new Class, 'propertyIsEnumerable'), "`propertyIsEnumerable` is an inherited property");
-    this.ok(!Maddy.isPropertyOf(Class.prototype, 'toString'), "`toString` is a property inherited from `Object.prototype`");
+    isDirect = curry(isPropertyOf, new Class);
+    this.ok(isDirect('valueOf'), "The instance property `valueOf` shadows a property on the prototype");
+    this.ok(isDirect('toString'), "The instance property `toString` shadows a property on the prototype");
+    this.ok(!isDirect('isPrototypeOf'), "`isPrototypeOf` is an inherited property");
+    this.ok(!isDirect('propertyIsEnumerable'), "`propertyIsEnumerable` is an inherited property");
+    isPrototype = curry(isPropertyOf, Class.prototype);
+    this.ok(isPrototype('hasOwnProperty'), "The prototype property `hasOwnProperty` shadows a property on `Object.prototype`");
+    this.ok(isPrototype('isPrototypeOf'), "The prototype property `isPrototypeOf` shadows a property on `Object.prototype`");
+    this.ok(isPrototype('valueOf'), "The prototype property `valueOf` shadows a property on `Object.prototype`");
+    this.ok(!isPrototype('toString'), "`toString` is a property inherited from `Object.prototype`");
+    this.ok(isPropertyOf(Class, 'prototype'), "The constructor property `prototype` is a direct property");
     return this.done(9);
-  });
-  spec.add('getClassOf', function(){
-    var _ref;
-    this.equal(Maddy.getClassOf(null), 'Null', "The `[[Class]]` name of a `null` value is `Null`");
-    this.equal(Maddy.getClassOf(), 'Undefined', "The `[[Class]]` name of an `undefined` value is `Undefined`");
-    this.equal(Maddy.getClassOf({}), 'Object', "The `[[Class]]` name of an object literal is `Object`");
-    this.equal(Maddy.getClassOf({
+  }, Maddy));
+  spec.add('getClassOf', Maddy.curry(function(_arg){
+    var getClassOf, _ref;
+    getClassOf = _arg.getClassOf;
+    this.equal(getClassOf(null), 'Null', "The `[[Class]]` name of a `null` value is `Null`");
+    this.equal(getClassOf(), 'Undefined', "The `[[Class]]` name of an `undefined` value is `Undefined`");
+    this.equal(getClassOf({}), 'Object', "The `[[Class]]` name of an object literal is `Object`");
+    this.equal(getClassOf({
       length: (_ref = []).length,
       push: _ref.push,
       slice: _ref.slice
     }), 'Object', "The `[[Class]]` name of an array-like object is `Object`");
-    this.equal(Maddy.getClassOf(function(){}), 'Function', "The `[[Class]]` name of a function is `Function`");
-    this.equal(Maddy.getClassOf([]), 'Array', "The `[[Class]]` name of an array literal is `Array`");
-    this.equal(Maddy.getClassOf(/(?:)/), 'RegExp', "The `[[Class]]` name of a RegExp is `RegExp`");
-    this.equal(Maddy.getClassOf(new Date), 'Date', "The `[[Class]]` name of a `Date` instance is `Date`");
-    this.equal(Maddy.getClassOf(new Error), 'Object', "The normalized `[[Class]]` of an `Error` object is `Object`");
-    this.equal(Maddy.getClassOf('Kit'), 'String', "The `[[Class]]` name of a string primitive is `String`");
-    this.equal(Maddy.getClassOf(new String('Maddy')), 'String', "The `[[Class]]` name of a string object is `String`");
-    this.equal(Maddy.getClassOf(true), 'Boolean', "The `[[Class]]` name of a boolean primitive is `Boolean`");
-    this.equal(Maddy.getClassOf(new Boolean), 'Boolean', "The `[[Class]]` name of a boolean object is `Boolean`");
-    this.equal(Maddy.getClassOf(63), 'Number', "The `[[Class]]` name of a number primitive is `Number`");
-    this.equal(Maddy.getClassOf(new Number(61)), 'Number', "The `[[Class]]` name of a number object is `Number`");
+    this.equal(getClassOf(function(){}), 'Function', "The `[[Class]]` name of a function is `Function`");
+    this.equal(getClassOf([]), 'Array', "The `[[Class]]` name of an array literal is `Array`");
+    this.equal(getClassOf(/(?:)/), 'RegExp', "The `[[Class]]` name of a RegExp is `RegExp`");
+    this.equal(getClassOf(new Date), 'Date', "The `[[Class]]` name of a `Date` instance is `Date`");
+    this.equal(getClassOf(new Error), 'Object', "The normalized `[[Class]]` of an `Error` object is `Object`");
+    this.equal(getClassOf('Kit'), 'String', "The `[[Class]]` name of a string primitive is `String`");
+    this.equal(getClassOf(new String('Maddy')), 'String', "The `[[Class]]` name of a string object is `String`");
+    this.equal(getClassOf(true), 'Boolean', "The `[[Class]]` name of a boolean primitive is `Boolean`");
+    this.equal(getClassOf(new Boolean), 'Boolean', "The `[[Class]]` name of a boolean object is `Boolean`");
+    this.equal(getClassOf(63), 'Number', "The `[[Class]]` name of a number primitive is `Number`");
+    this.equal(getClassOf(new Number(61)), 'Number', "The `[[Class]]` name of a number object is `Number`");
     return this.done(15);
-  });
-  spec.add('forEach', function(){
-    var Class, size, result, _this = this;
+  }, Maddy));
+  spec.add('forEach', Maddy.curry(function(_arg){
+    var forEach, curry, Class, size, result, _this = this;
+    forEach = _arg.forEach, curry = _arg.curry;
     Class = (function(){
       Class.displayName = 'Class';
       var _ref, prototype = Class.prototype;
@@ -210,14 +214,14 @@
       return Class;
     }());
     size = 0;
-    Maddy.forEach(new Class, function(key, value, object){
+    forEach(function(key, value, object){
       size++;
       _this.equal(value, object[key], "The callback function accepts `key` and `value` arguments");
       return false;
-    });
+    }, new Class);
     this.equal(size, 1, "Explicitly returning `false` breaks the loop");
     size = 0;
-    Maddy.forEach(new Class, function(key, value){
+    forEach(function(key, value){
       size++;
       switch (key) {
       case 'length':
@@ -227,10 +231,10 @@
       case 'toString':
         return _this.equal(value, 3, "The shadowed `toString` property is enumerated once");
       }
-    });
+    }, new Class);
     this.equal(size, 3, "The `Class` instance should contain three direct properties");
     size = 0;
-    Maddy.forEach(Class.prototype, function(key, value){
+    forEach(function(key, value){
       size++;
       switch (key) {
       case 'constructor':
@@ -246,19 +250,20 @@
       case 'hasOwnProperty':
         return _this.equal(value, 9, "The direct `hasOwnProperty` prototype property is enumerated");
       }
-    });
+    }, Class.prototype);
     this.equal(size, 6, "The `Class` prototype should contain six direct properties");
     result = true;
-    Maddy.forEach(Class, function(it){
+    forEach(function(it){
       if (it === 'prototype') {
         return result = false;
       }
-    });
+    }, Class);
     this.ok(result, "The `prototype` property of functions should not be enumerated");
     return this.done(14);
-  });
-  spec.add('isEqual', function(){
-    var First, Second, A, B;
+  }, Maddy));
+  spec.add('isEqual', Maddy.curry(function(_arg){
+    var isEqual, First, Second, A, B;
+    isEqual = _arg.isEqual;
     First = (function(){
       First.displayName = 'First';
       var prototype = First.prototype;
@@ -277,83 +282,83 @@
       }
       return Second;
     }());
-    this.ok(!Maddy.isEqual(0, -0), "`0` is not equal to `-0`");
-    this.ok(!Maddy.isEqual(-0, 0), "Commutative equality is implemented for `0` and `-0`");
-    this.ok(Maddy.isEqual(null, null), "`null` is equal to `null`");
-    this.ok(Maddy.isEqual(), "`undefined` is equal to `undefined`");
-    this.ok(!Maddy.isEqual(null, void 8), "`null` is not equal to `undefined`");
-    this.ok(!Maddy.isEqual(void 8, null), "Commutative equality is implemented for `null` and `undefined`");
-    this.ok(Maddy.isEqual('Maddy', 'Maddy'), "Identical string primitives are equal");
-    this.ok(Maddy.isEqual(new String('Maddy'), 'Maddy'), "String primitives and their corresponding object wrappers are equal");
-    this.ok(Maddy.isEqual('Maddy', new String('Maddy')), "Commutative equality is implemented for strings");
-    this.ok(Maddy.isEqual(new String('Maddy'), new String('Maddy')), "String objects with identical primitive values are equal");
-    this.ok(!Maddy.isEqual(new String('Maddy'), new String('Kit')), "String objects with different primitive values are not equal");
-    this.ok(!Maddy.isEqual(new String('Maddy'), 'Kit'), "String objects and primitives with different values are not equal");
-    this.ok(!Maddy.isEqual(new String('Maddy'), {
+    this.ok(!isEqual(0, -0), "`0` is not equal to `-0`");
+    this.ok(!isEqual(-0, 0), "Commutative equality is implemented for `0` and `-0`");
+    this.ok(isEqual(null, null), "`null` is equal to `null`");
+    this.ok(isEqual(), "`undefined` is equal to `undefined`");
+    this.ok(!isEqual(null, void 8), "`null` is not equal to `undefined`");
+    this.ok(!isEqual(void 8, null), "Commutative equality is implemented for `null` and `undefined`");
+    this.ok(isEqual('Maddy', 'Maddy'), "Identical string primitives are equal");
+    this.ok(isEqual(new String('Maddy'), 'Maddy'), "String primitives and their corresponding object wrappers are equal");
+    this.ok(isEqual('Maddy', new String('Maddy')), "Commutative equality is implemented for strings");
+    this.ok(isEqual(new String('Maddy'), new String('Maddy')), "String objects with identical primitive values are equal");
+    this.ok(!isEqual(new String('Maddy'), new String('Kit')), "String objects with different primitive values are not equal");
+    this.ok(!isEqual(new String('Maddy'), 'Kit'), "String objects and primitives with different values are not equal");
+    this.ok(!isEqual(new String('Maddy'), {
       toString: function(){
         return 'Maddy';
       }
     }), "String objects and objects with a custom `toString` method are not equal");
-    this.ok(Maddy.isEqual(75, 75), "Identical number primitives are equal");
-    this.ok(Maddy.isEqual(75, new Number(75)), "Number primitives and their corresponding object wrappers are equal");
-    this.ok(Maddy.isEqual(new Number(75), 75), "Commutative equality is implemented for numbers");
-    this.ok(Maddy.isEqual(new Number(75), new Number(75)), "Number objects with identical primitive values are equal");
-    this.ok(!Maddy.isEqual(new Number(75), new Number(63)), "Number objects with different primitive values are not equal");
-    this.ok(!Maddy.isEqual(new Number(63), {
+    this.ok(isEqual(75, 75), "Identical number primitives are equal");
+    this.ok(isEqual(75, new Number(75)), "Number primitives and their corresponding object wrappers are equal");
+    this.ok(isEqual(new Number(75), 75), "Commutative equality is implemented for numbers");
+    this.ok(isEqual(new Number(75), new Number(75)), "Number objects with identical primitive values are equal");
+    this.ok(!isEqual(new Number(75), new Number(63)), "Number objects with different primitive values are not equal");
+    this.ok(!isEqual(new Number(63), {
       valueOf: function(){
         return 63;
       }
     }), "Number objects and objects with a `valueOf` method are not equal");
-    this.ok(Maddy.isEqual(NaN, NaN), "`NaN` is equal to `NaN`");
-    this.ok(!Maddy.isEqual(61, NaN), "A number primitive is not equal to `NaN`");
-    this.ok(!Maddy.isEqual(new Number(79), NaN), "A number object is not equal to `NaN`");
-    this.ok(!Maddy.isEqual(Infinity, NaN), "`Infinity` is not equal to `NaN`");
-    this.ok(Maddy.isEqual(true, true), "Identical boolean primitives are equal");
-    this.ok(Maddy.isEqual(true, new Boolean(true)), "Boolean primitives and their corresponding object wrappers are equal");
-    this.ok(Maddy.isEqual(new Boolean(true), true), "Commutative equality is implemented for booleans");
-    this.ok(Maddy.isEqual(new Boolean, new Boolean), "Boolean objects with identical primitive values are equal");
-    this.ok(!Maddy.isEqual(new Boolean(true), new Boolean), "Boolean objects with different primitive values are not equal");
-    this.ok(!Maddy.isEqual(true, new Boolean(false)), "Boolean objects are not equal to the boolean primitive `true`");
-    this.ok(!Maddy.isEqual("75", 75), "String and number primitives with like values are not equal");
-    this.ok(!Maddy.isEqual(new Number(63), new String(63)), "String and number objects with like values are not equal");
-    this.ok(!Maddy.isEqual(75, "75"), "Commutative equality is implemented for like string and number values");
-    this.ok(!Maddy.isEqual(0, ""), "Number and string primitives with like values are not equal");
-    this.ok(!Maddy.isEqual(1, true), "Number and boolean primitives with like values are not equal");
-    this.ok(!Maddy.isEqual(new Boolean(false), new Number(0)), "Boolean and number objects with like values are not equal");
-    this.ok(!Maddy.isEqual(false, new String("")), "Boolean primitives and string objects with like values are not equal");
-    this.ok(!Maddy.isEqual(7732152e5, new Date(1994, 6, 3)), "Dates and their corresponding numeric primitive values are not equal");
-    this.ok(Maddy.isEqual(new Date(1994, 6, 3), new Date(1994, 6, 3)), "Date objects referencing identical times are equal");
-    this.ok(!Maddy.isEqual(new Date(1994, 6, 3), new Date(1993, 5, 2)), "Date objects referencing different times are not equal");
-    this.ok(!Maddy.isEqual(new Date(1993, 5, 2), {
+    this.ok(isEqual(NaN, NaN), "`NaN` is equal to `NaN`");
+    this.ok(!isEqual(61, NaN), "A number primitive is not equal to `NaN`");
+    this.ok(!isEqual(new Number(79), NaN), "A number object is not equal to `NaN`");
+    this.ok(!isEqual(Infinity, NaN), "`Infinity` is not equal to `NaN`");
+    this.ok(isEqual(true, true), "Identical boolean primitives are equal");
+    this.ok(isEqual(true, new Boolean(true)), "Boolean primitives and their corresponding object wrappers are equal");
+    this.ok(isEqual(new Boolean(true), true), "Commutative equality is implemented for booleans");
+    this.ok(isEqual(new Boolean, new Boolean), "Boolean objects with identical primitive values are equal");
+    this.ok(!isEqual(new Boolean(true), new Boolean), "Boolean objects with different primitive values are not equal");
+    this.ok(!isEqual(true, new Boolean(false)), "Boolean objects are not equal to the boolean primitive `true`");
+    this.ok(!isEqual("75", 75), "String and number primitives with like values are not equal");
+    this.ok(!isEqual(new Number(63), new String(63)), "String and number objects with like values are not equal");
+    this.ok(!isEqual(75, "75"), "Commutative equality is implemented for like string and number values");
+    this.ok(!isEqual(0, ""), "Number and string primitives with like values are not equal");
+    this.ok(!isEqual(1, true), "Number and boolean primitives with like values are not equal");
+    this.ok(!isEqual(new Boolean(false), new Number(0)), "Boolean and number objects with like values are not equal");
+    this.ok(!isEqual(false, new String("")), "Boolean primitives and string objects with like values are not equal");
+    this.ok(!isEqual(7732152e5, new Date(1994, 6, 3)), "Dates and their corresponding numeric primitive values are not equal");
+    this.ok(isEqual(new Date(1994, 6, 3), new Date(1994, 6, 3)), "Date objects referencing identical times are equal");
+    this.ok(!isEqual(new Date(1994, 6, 3), new Date(1993, 5, 2)), "Date objects referencing different times are not equal");
+    this.ok(!isEqual(new Date(1993, 5, 2), {
       getTime: function(){
         return 7390008e5;
       }
     }), "Date objects and objects with a `getTime` method are not equal");
-    this.ok(!Maddy.isEqual(new Date('Maddy'), new Date('Maddy')), "Invalid dates are not equal");
-    this.ok(!Maddy.isEqual(First, Second), "Different functions with identical bodies and source code representations are not equal");
-    this.ok(Maddy.isEqual(/(?:)/gim, /(?:)/gim), "RegExps with equivalent patterns and flags are equal");
-    this.ok(!Maddy.isEqual(/(?:)/g, /(?:)/gi), "RegExps with equivalent patterns and different flags are not equal");
-    this.ok(!Maddy.isEqual(/Maddy/gim, /Kit/gim), "RegExps with different patterns and equivalent flags are not equal");
-    this.ok(!Maddy.isEqual(/(?:)/gi, /(?:)/g), "Commutative equality is implemented for RegExps");
-    this.ok(!Maddy.isEqual(/Kit/g, {
+    this.ok(!isEqual(new Date('Maddy'), new Date('Maddy')), "Invalid dates are not equal");
+    this.ok(!isEqual(First, Second), "Different functions with identical bodies and source code representations are not equal");
+    this.ok(isEqual(/(?:)/gim, /(?:)/gim), "RegExps with equivalent patterns and flags are equal");
+    this.ok(!isEqual(/(?:)/g, /(?:)/gi), "RegExps with equivalent patterns and different flags are not equal");
+    this.ok(!isEqual(/Maddy/gim, /Kit/gim), "RegExps with different patterns and equivalent flags are not equal");
+    this.ok(!isEqual(/(?:)/gi, /(?:)/g), "Commutative equality is implemented for RegExps");
+    this.ok(!isEqual(/Kit/g, {
       source: 'Kit',
       global: true,
       ignoreCase: false,
       multiline: false
     }), "RegExps and RegExp-like objects are not equal");
-    this.ok(Maddy.isEqual({}, {}), "Empty object literals are equal");
-    this.ok(Maddy.isEqual([], []), "Empty array literals are equal");
-    this.ok(Maddy.isEqual([{}], [{}]), "Empty nested arrays and objects are equal");
-    this.ok(!Maddy.isEqual({}, []), "Object literals and array literals are not equal");
-    this.ok(!Maddy.isEqual([], {}), "Commutative equality is implemented for objects and arrays");
-    this.ok(!Maddy.isEqual({
+    this.ok(isEqual({}, {}), "Empty object literals are equal");
+    this.ok(isEqual([], []), "Empty array literals are equal");
+    this.ok(isEqual([{}], [{}]), "Empty nested arrays and objects are equal");
+    this.ok(!isEqual({}, []), "Object literals and array literals are not equal");
+    this.ok(!isEqual([], {}), "Commutative equality is implemented for objects and arrays");
+    this.ok(!isEqual({
       length: 0
     }, []), "Array-like objects and arrays are not equal");
-    this.ok(!Maddy.isEqual([], {
+    this.ok(!isEqual([], {
       length: 0
     }), "Commutative equality is implemented for array-like objects");
-    this.ok(Maddy.isEqual([1, 'Kit', true], [1, 'Kit', true]), "Arrays containing identical primitives are equal");
-    this.ok(Maddy.isEqual([/Maddy/g, new Date(1994, 6, 3)], [/Maddy/g, new Date(1994, 6, 3)]), "Arrays containing equivalent elements are equal");
+    this.ok(isEqual([1, 'Kit', true], [1, 'Kit', true]), "Arrays containing identical primitives are equal");
+    this.ok(isEqual([/Maddy/g, new Date(1994, 6, 3)], [/Maddy/g, new Date(1994, 6, 3)]), "Arrays containing equivalent elements are equal");
     A = [
       new Number(47), new Boolean, new String('Kit'), /Maddy/, new Date(1993, 5, 2), ['running', 'biking', 'programming'], {
         a: 47
@@ -364,22 +369,22 @@
         a: new Number(47)
       }
     ];
-    this.ok(Maddy.isEqual(A, B), "Arrays containing nested arrays and objects are recursively compared");
+    this.ok(isEqual(A, B), "Arrays containing nested arrays and objects are recursively compared");
     A.forEach = A.map = A.filter = A.every = A.indexOf = A.lastIndexOf = A.some = A.reduce = A.reduceRight = null;
     B.join = B.pop = B.reverse = B.shift = B.slice = B.splice = B.concat = B.sort = B.unshift = null;
-    this.ok(Maddy.isEqual(A, B), "Arrays containing equivalent elements and different non-numeric properties are equal");
+    this.ok(isEqual(A, B), "Arrays containing equivalent elements and different non-numeric properties are equal");
     A.push("White Rocks");
-    this.ok(!Maddy.isEqual(A, B), "Arrays of different lengths are not equal");
+    this.ok(!isEqual(A, B), "Arrays of different lengths are not equal");
     A.push("East Boulder");
     B.push("Gunbarrel Ranch", "Teller Farm");
-    this.ok(!Maddy.isEqual(A, B), "Arrays of identical lengths containing different elements are not equal");
-    this.ok(Maddy.isEqual(Array(3), Array(3)), "Sparse arrays of identical lengths are equal");
-    this.ok(!Maddy.isEqual(Array(3), Array(6)), "Sparse arrays of different lengths are not equal");
+    this.ok(!isEqual(A, B), "Arrays of identical lengths containing different elements are not equal");
+    this.ok(isEqual(Array(3), Array(3)), "Sparse arrays of identical lengths are equal");
+    this.ok(!isEqual(Array(3), Array(6)), "Sparse arrays of different lengths are not equal");
     if (0 in [void 8]) {
-      this.ok(!Maddy.isEqual(Array(3), [void 8, void 8, void 8]), "Sparse and dense arrays are not equal");
-      this.ok(!Maddy.isEqual([void 8, void 8, void 8], Array(3)), "Commutative equality is implemented for sparse and dense arrays");
+      this.ok(!isEqual(Array(3), [void 8, void 8, void 8]), "Sparse and dense arrays are not equal");
+      this.ok(!isEqual([void 8, void 8, void 8], Array(3)), "Commutative equality is implemented for sparse and dense arrays");
     }
-    this.ok(Maddy.isEqual({
+    this.ok(isEqual({
       a: 'Maddy',
       b: 1,
       c: true
@@ -388,40 +393,40 @@
       b: 1,
       c: true
     }), "Objects containing identical primitives are equal");
-    this.ok(Maddy.isEqual({
+    this.ok(isEqual({
       a: /Kit/g,
       b: new Date(1993, 5, 2)
     }, {
       a: /Kit/g,
       b: new Date(1993, 5, 2)
     }), "Objects containing equivalent members are equal");
-    this.ok(!Maddy.isEqual({
+    this.ok(!isEqual({
       a: 63,
       b: 75
     }, {
       a: 61,
       b: 55
     }), "Objects of identical sizes with different values are not equal");
-    this.ok(!Maddy.isEqual({
+    this.ok(!isEqual({
       a: 63,
       b: 75
     }, {
       a: 61,
       c: 55
     }), "Objects of identical sizes with different property names are not equal");
-    this.ok(!Maddy.isEqual({
+    this.ok(!isEqual({
       a: 1,
       b: 2
     }, {
       a: 1
     }), "Objects of different sizes are not equal");
-    this.ok(!Maddy.isEqual({
+    this.ok(!isEqual({
       a: 1
     }, {
       a: 1,
       b: 2
     }), "Commutative equality is implemented for objects");
-    this.ok(!Maddy.isEqual({
+    this.ok(!isEqual({
       x: 1,
       y: void 8
     }, {
@@ -450,29 +455,29 @@
         longitude: -105.178
       }
     };
-    this.ok(Maddy.isEqual(A, B), "Objects with nested equivalent members are recursively compared");
+    this.ok(isEqual(A, B), "Objects with nested equivalent members are recursively compared");
     A.constructor = A.hasOwnProperty = A.isPrototypeOf = A.propertyIsEnumerable = A.toString = A.toLocaleString = A.valueOf = null;
     B.constructor = B.hasOwnProperty = B.isPrototypeOf = B.propertyIsEnumerable = null;
-    this.ok(!Maddy.isEqual(A, B), "Objects with different own properties are not equal");
+    this.ok(!isEqual(A, B), "Objects with different own properties are not equal");
     B.toString = B.toLocaleString = B.valueOf = null;
-    this.ok(Maddy.isEqual(A, B), "Objects with identical own properties are equal");
-    this.ok(Maddy.isEqual(new First, new First), "Object instances are equal");
-    this.ok(Maddy.isEqual(new First, new Second), "Objects with different constructors and identical own properties are equal");
-    this.ok(Maddy.isEqual({
+    this.ok(isEqual(A, B), "Objects with identical own properties are equal");
+    this.ok(isEqual(new First, new First), "Object instances are equal");
+    this.ok(isEqual(new First, new Second), "Objects with different constructors and identical own properties are equal");
+    this.ok(isEqual({
       toString: new Number(1)
     }, new First), "Object instances and objects sharing equivalent properties are identical");
-    this.ok(!Maddy.isEqual({
+    this.ok(!isEqual({
       toString: 2
     }, new Second), "The prototype chain of objects should not be examined");
     (A = []).push(A);
     (B = []).push(B);
-    this.ok(Maddy.isEqual(A, B), "Arrays containing circular references are equal");
+    this.ok(isEqual(A, B), "Arrays containing circular references are equal");
     A.push(new String('Kit'));
     B.push('Kit');
-    this.ok(Maddy.isEqual(A, B), "Arrays containing circular references and equivalent properties are equal");
+    this.ok(isEqual(A, B), "Arrays containing circular references and equivalent properties are equal");
     A.push('John-David');
     B.push(new String('Maddy'));
-    this.ok(!Maddy.isEqual(A, B), "Arrays containing circular references and different properties are not equal");
+    this.ok(!isEqual(A, B), "Arrays containing circular references and different properties are not equal");
     A = {
       abc: null
     };
@@ -481,13 +486,13 @@
     };
     A.abc = A;
     B.abc = B;
-    this.ok(Maddy.isEqual(A, B), "Objects containing circular references are equal");
+    this.ok(isEqual(A, B), "Objects containing circular references are equal");
     A.def = new Number(75);
     B.def = 75;
-    this.ok(Maddy.isEqual(A, B), "Objects containing circular references and equivalent properties are equal");
+    this.ok(isEqual(A, B), "Objects containing circular references and equivalent properties are equal");
     A.def = 75;
     B.def = new Number(63);
-    this.ok(!Maddy.isEqual(A, B), "Objects containing circular references and different properties are not equal");
+    this.ok(!isEqual(A, B), "Objects containing circular references and different properties are not equal");
     A = [{
       abc: null
     }];
@@ -496,13 +501,13 @@
     }];
     (A[0].abc = A).push(A);
     (B[0].abc = B).push(B);
-    this.ok(Maddy.isEqual(A, B), "Cyclic structures are equal");
+    this.ok(isEqual(A, B), "Cyclic structures are equal");
     A[0].def = new String('Kit');
     B[0].def = 'Kit';
-    this.ok(Maddy.isEqual(A, B), "Cyclic structures containing equivalent properties are equal");
+    this.ok(isEqual(A, B), "Cyclic structures containing equivalent properties are equal");
     A[0].def = 'Kit';
     B[0].def = new String('Maddy');
-    this.ok(!Maddy.isEqual(A, B), "Cyclic structures containing different properties are not equal");
+    this.ok(!isEqual(A, B), "Cyclic structures containing different properties are not equal");
     A = {
       foo: {
         b: {
@@ -527,28 +532,29 @@
     };
     A.foo.b.foo.c.foo = A;
     B.foo.b.foo.c.foo = B;
-    this.ok(Maddy.isEqual(A, B), "Cyclic structures with nested and identically-named properties are equal");
+    this.ok(isEqual(A, B), "Cyclic structures with nested and identically-named properties are equal");
     return this.done();
-  });
-  spec.add('stringify', function(){
-    var A, cyclic;
-    this.equal(Maddy.stringify(null), 'null', "`null` is serialized as-is");
-    this.equal(Maddy.stringify(), 'null', "`undefined` values are converted to `null`");
-    this.equal(Maddy.stringify(Infinity), 'null', "`Infinity` is converted to `null`");
-    this.equal(Maddy.stringify(NaN), 'null', "`NaN` is converted to `null`");
-    this.equal(Maddy.stringify(function(){}), 'null', "Functions are converted to `null`");
-    this.equal(Maddy.stringify(/Kit/), "{\"source\": \"Kit\", \"global\": false, \"ignoreCase\": false, \"multiline\": false}", "RegExps are serialized as standard objects");
-    this.equal(Maddy.stringify(/Maddy/gi), "{\"source\": \"Maddy\", \"global\": true, \"ignoreCase\": true, \"multiline\": false}", "RegExp flags set the corresponding properties accordingly");
-    this.equal(Maddy.stringify(true), 'true', "`true` is serialized as-is");
-    this.equal(Maddy.stringify(new Boolean(false)), 'false', "`false` is serialized as-is");
-    this.equal(Maddy.stringify('Kit'), '"Kit"', "String values are double-quoted");
-    this.equal(Maddy.stringify(new String('\\"Hello\bworld\tthis\nis\fnice\r"')), '"\\\\\\"Hello\\bworld\\tthis\\nis\\fnice\\r\\""', "All control characters are escaped");
-    this.equal(Maddy.stringify(new Date(1994, 6, 3)), '"1994-07-03T06:00:00.000Z"', "Dates are serialized using the simplified date time string format");
-    this.equal(Maddy.stringify(new Date(1993, 5, 2, 2, 10, 28, 224)), '"1993-06-02T08:10:28.224Z"', "The date time string conforms to the format outlined in the spec");
-    this.equal(Maddy.stringify([new Boolean, new Number(1), new String('Maddy')]), "[false, 1, \"Maddy\"]", "Arrays are recursively serialized");
+  }, Maddy));
+  spec.add('stringify', Maddy.curry(function(_arg){
+    var stringify, A, cyclic;
+    stringify = _arg.stringify;
+    this.equal(stringify(null), 'null', "`null` is serialized as-is");
+    this.equal(stringify(), 'null', "`undefined` values are converted to `null`");
+    this.equal(stringify(Infinity), 'null', "`Infinity` is converted to `null`");
+    this.equal(stringify(NaN), 'null', "`NaN` is converted to `null`");
+    this.equal(stringify(function(){}), 'null', "Functions are converted to `null`");
+    this.equal(stringify(/Kit/), "{\"source\": \"Kit\", \"global\": false, \"ignoreCase\": false, \"multiline\": false}", "RegExps are serialized as standard objects");
+    this.equal(stringify(/Maddy/gi), "{\"source\": \"Maddy\", \"global\": true, \"ignoreCase\": true, \"multiline\": false}", "RegExp flags set the corresponding properties accordingly");
+    this.equal(stringify(true), 'true', "`true` is serialized as-is");
+    this.equal(stringify(new Boolean(false)), 'false', "`false` is serialized as-is");
+    this.equal(stringify('Kit'), '"Kit"', "String values are double-quoted");
+    this.equal(stringify(new String('\\"Hello\bworld\tthis\nis\fnice\r"')), '"\\\\\\"Hello\\bworld\\tthis\\nis\\fnice\\r\\""', "All control characters are escaped");
+    this.equal(stringify(new Date(1994, 6, 3)), '"1994-07-03T06:00:00.000Z"', "Dates are serialized using the simplified date time string format");
+    this.equal(stringify(new Date(1993, 5, 2, 2, 10, 28, 224)), '"1993-06-02T08:10:28.224Z"', "The date time string conforms to the format outlined in the spec");
+    this.equal(stringify([new Boolean, new Number(1), new String('Maddy')]), "[false, 1, \"Maddy\"]", "Arrays are recursively serialized");
     (A = []).push(1, A, 2, A, 3, A);
-    this.equal(Maddy.stringify(A), "[1, null, 2, null, 3, null]", "Circular array references are replaced with `null`");
-    this.equal(Maddy.stringify({
+    this.equal(stringify(A), "[1, null, 2, null, 3, null]", "Circular array references are replaced with `null`");
+    this.equal(stringify({
       jdalton: 'John-David',
       kitcam: 'Kit',
       M_J: 'Maddy'
@@ -556,7 +562,7 @@
     (A = {
       def: null
     }).def = A;
-    this.equal(Maddy.stringify(A), "{\"def\": null}", "Circular object references are replaced with `null`");
+    this.equal(stringify(A), "{\"def\": null}", "Circular object references are replaced with `null`");
     cyclic = {
       foo: {
         b: {
@@ -569,11 +575,12 @@
       }
     };
     cyclic.foo.b.foo.c.foo = cyclic;
-    this.equal(Maddy.stringify(cyclic), "{\"foo\": {\"b\": {\"foo\": {\"c\": {\"foo\": null}}}}}", "Complex circular references are serialized correctly");
+    this.equal(stringify(cyclic), "{\"foo\": {\"b\": {\"foo\": {\"c\": {\"foo\": null}}}}}", "Complex circular references are serialized correctly");
     return this.done(18);
-  });
-  spec.add("map, collect", function(){
-    var developers, callback;
+  }, Maddy));
+  spec.add("map, collect", Maddy.curry(function(_arg){
+    var map, collect, developers, callback;
+    map = _arg.map, collect = _arg.collect;
     developers = {
       jdalton: {
         name: 'John-David',
@@ -588,13 +595,10 @@
         age: 18
       }
     };
-    this.error(function(){
-      return Maddy.map(null);
-    }, /TypeError/, "`map` throws a `TypeError` if the callback function is omitted");
     callback = function(key, value){
       return [value['name'], value['age']];
     };
-    this.deepEqual(Maddy.map(developers, callback), {
+    this.deepEqual(map(callback, developers), {
       jdalton: ['John-David', 29],
       mathias: ['Mathias', 23],
       kitcam: ['Kit', 18]
@@ -602,17 +606,18 @@
     callback = function(key, value){
       return [key, value.age * this.K];
     };
-    this.deepEqual(Maddy.collect(developers, callback, {
+    this.deepEqual(collect(callback, {
       K: 10
-    }), {
+    }, developers), {
       jdalton: ['jdalton', 290],
       mathias: ['mathias', 230],
       kitcam: ['kitcam', 180]
     }, "`collect` accepts a `context` argument");
-    return this.done(3);
-  });
-  spec.add("fold, inject, reduce", function(){
-    var ages, callback;
+    return this.done(2);
+  }, Maddy));
+  spec.add("fold, inject, reduce", Maddy.curry(function(_arg){
+    var fold, inject, reduce, ages, callback;
+    fold = _arg.fold, inject = _arg.inject, reduce = _arg.reduce;
     ages = {
       jdalton: 29,
       mathias: 23,
@@ -622,27 +627,25 @@
       return memo + age;
     };
     this.error(function(){
-      return Maddy.fold(ages);
-    }, /TypeError/, "`fold` throws a `TypeError` if the callback function is omitted");
-    this.error(function(){
-      return Maddy.fold(ages, callback);
+      return fold(callback, ages);
     }, /TypeError/, "`fold` throws a `TypeError` if the initial value is omitted");
-    this.equal(Maddy.inject(ages, callback, 0), 69, "`inject` can sum the numeric values of an object");
+    this.equal(inject(callback, 0, ages), 69, "`inject` can sum the numeric values of an object");
     callback = function(memo, name, age){
       memo[age * this.K] = name;
       return memo;
     };
-    this.deepEqual(Maddy.reduce(ages, callback, {}, {
+    this.deepEqual(reduce(callback, {
       K: 10
-    }), {
+    }, {}, ages), {
       290: 'jdalton',
       230: 'mathias',
       170: 'M_J'
     }, "`reduce` accepts a `context` argument");
-    return this.done(4);
-  });
-  spec.add("some, any", function(){
-    var languages;
+    return this.done(3);
+  }, Maddy));
+  spec.add("some, any", Maddy.curry(function(_arg){
+    var some, any, languages;
+    some = _arg.some, any = _arg.any;
     languages = {
       JavaScript: 1996,
       Haskell: 1990,
@@ -650,27 +653,28 @@
       Python: 1991,
       Ruby: 1993
     };
-    this.ok(!Maddy.some({}, Maddy.identity(1)), "`some` returns `false` for an empty object");
-    this.ok(!Maddy.any({
+    this.ok(!some(K, {}), "`some` returns `false` for an empty object");
+    this.ok(!any(K, {
       Kit: false,
       Mathias: false,
       Maddy: false
-    }, Maddy.identity(1)), "`any` returns `false` for an object containing all falsy values");
-    this.ok(Maddy.some({
+    }), "`any` returns `false` for an object containing all falsy values");
+    this.ok(some(K, {
       Kit: false,
       Mathias: false,
       Maddy: true
-    }, Maddy.identity(1)), "`some` returns `true` for an object containing at least one truthy value");
-    this.ok(Maddy.any(languages, function(key, value){
+    }), "`some` returns `true` for an object containing at least one truthy value");
+    this.ok(any(function(key, value){
       return key > "Delphi" && value > 1990;
-    }), "`any` returns `true` if the object contains at least one matching member");
-    this.ok(!Maddy.any(languages, function(key, value){
+    }, languages), "`any` returns `true` if the object contains at least one matching member");
+    this.ok(!any(function(key, value){
       return key > "Visual Basic";
-    }), "`any` returns `false` if no matching members are found");
+    }, languages), "`any` returns `false` if no matching members are found");
     return this.done(5);
-  });
-  spec.add("select, findAll, filter", function(){
-    var libraries;
+  }, Maddy));
+  spec.add("select, findAll, filter", Maddy.curry(function(_arg){
+    var select, findAll, filter, libraries;
+    select = _arg.select, findAll = _arg.findAll, filter = _arg.filter;
     libraries = {
       Prototype: 2005,
       jQuery: 2006,
@@ -678,21 +682,22 @@
       YUI: 2005,
       Underscore: 2009
     };
-    this.deepEqual(Maddy.select(libraries, function(library, year){
+    this.deepEqual(select(function(library, year){
       return year > 2004;
-    }), libraries, "`select` returns a shallow copy if all members match the specified criteria");
-    this.deepEqual(Maddy.findAll(libraries, function(library){
+    }, libraries), libraries, "`select` returns a shallow copy if all members match the specified criteria");
+    this.deepEqual(findAll(function(library){
       return library < "Dojo";
-    }), {}, "`findAll` returns an empty set if no matching members are found");
-    this.deepEqual(Maddy.filter(libraries, function(library, year){
+    }, libraries), {}, "`findAll` returns an empty set if no matching members are found");
+    this.deepEqual(filter(function(library, year){
       return library > "Sencha" && year > 2007;
-    }), {
+    }, libraries), {
       Underscore: 2009
     }, "`filter returns a set of members that match the specified criteria");
     return this.done(3);
-  });
-  spec.add("all, every", function(){
-    var languages;
+  }, Maddy));
+  spec.add("all, every", Maddy.curry(function(_arg){
+    var all, every, languages;
+    all = _arg.all, every = _arg.every;
     languages = {
       JavaScript: 1996,
       Haskell: 1990,
@@ -700,27 +705,28 @@
       Python: 1991,
       Ruby: 1993
     };
-    this.ok(Maddy.all({}, Maddy.identity(1)), "`all` is vacuously true for an empty object");
-    this.ok(Maddy.every({
+    this.ok(all(K, {}), "`all` is vacuously true for an empty object");
+    this.ok(every(K, {
       Kit: true,
       Mathias: true,
       Maddy: true
-    }, Maddy.identity(1)), "`every` returns `true` for an object containing all truthy values");
-    this.ok(!Maddy.all({
+    }), "`every` returns `true` for an object containing all truthy values");
+    this.ok(!all(K, {
       Kit: true,
       Mathias: false,
       Maddy: true
-    }, Maddy.identity(1)), "`all` returns `false` for an object containing one or more falsy values");
-    this.ok(!Maddy.every(languages, function(key, value){
+    }), "`all` returns `false` for an object containing one or more falsy values");
+    this.ok(!every(function(key, value){
       return key > "Delphi" && value > 1990;
-    }), "`every` returns `false` if one or more members do not match");
-    this.ok(Maddy.all(languages, function(key, value){
+    }, languages), "`every` returns `false` if one or more members do not match");
+    this.ok(all(function(key, value){
       return key < "Visual Basic";
-    }), "`all` returns `true` only if all members match the criteria");
+    }, languages), "`all` returns `true` only if all members match the criteria");
     return this.done(5);
-  });
-  spec.add('reject', function(){
-    var libraries;
+  }, Maddy));
+  spec.add('reject', Maddy.curry(function(_arg){
+    var reject, libraries;
+    reject = _arg.reject;
     libraries = {
       Prototype: 2005,
       jQuery: 2006,
@@ -728,22 +734,23 @@
       YUI: 2005,
       Underscore: 2009
     };
-    this.deepEqual(Maddy.reject(libraries, function(library){
+    this.deepEqual(reject(function(library){
       return library > "Backbone";
-    }), {}, "`reject` returns an empty set if all members match the specified criteria");
-    this.deepEqual(Maddy.reject(libraries, function(library, year){
+    }, libraries), {}, "`reject` returns an empty set if all members match the specified criteria");
+    this.deepEqual(reject(function(library, year){
       return library < "Qooxdoo" || year < 2006;
-    }), {
+    }, libraries), {
       jQuery: 2006,
       Underscore: 2009
     }, "`reject` returns a set of members that do not match the specified criteria");
-    this.deepEqual(Maddy.reject(libraries, function(library, year){
+    this.deepEqual(reject(function(library, year){
       return year > 2009;
-    }), libraries, "`reject` returns a shallow copy if no members match the specified criteria");
+    }, libraries), libraries, "`reject` returns a shallow copy if no members match the specified criteria");
     return this.done(3);
-  });
-  spec.add("invoke, send", function(){
-    var names;
+  }, Maddy));
+  spec.add("invoke, send", Maddy.curry(function(_arg){
+    var invoke, send, names;
+    invoke = _arg.invoke, send = _arg.send;
     names = {
       jdalton: [
         'John-David', 29, {
@@ -761,20 +768,21 @@
         }, 'runner'
       ]
     };
-    this.deepEqual(Maddy.send(names, 'pop'), {
+    this.deepEqual(send(names, 'pop'), {
       jdalton: 'programmer',
       kitcam: 'programmer',
       M_J: 'runner'
     }, "`send` invokes a method on every member value");
-    this.deepEqual(Maddy.invoke(names, 'slice', 1, -1), {
+    this.deepEqual(invoke(names, 'slice', 1, -1), {
       jdalton: [29],
       kitcam: [18],
       M_J: [17]
     }, "`invoke` accepts optional arguments for each method");
     return this.done(2);
-  });
-  spec.add('max', function(){
-    var names;
+  }, Maddy));
+  spec.add('max', Maddy.curry(function(_arg){
+    var max, names;
+    max = _arg.max;
     names = {
       jdalton: {
         name: 'John-David',
@@ -789,15 +797,16 @@
         age: 18
       }
     };
-    this.equal(Maddy.max(names, function(name, _arg){
+    this.equal(max(function(name, _arg){
       var age;
       age = _arg.age;
       return age;
-    }), 'jdalton', "`max` returns the maximum member value as computed by the callback function");
+    }, names), 'jdalton', "`max` returns the maximum member value as computed by the callback function");
     return this.done(1);
-  });
-  spec.add('min', function(){
-    var names;
+  }, Maddy));
+  spec.add('min', Maddy.curry(function(_arg){
+    var min, names;
+    min = _arg.min;
     names = {
       jdalton: {
         name: 'John-David',
@@ -812,15 +821,16 @@
         age: 18
       }
     };
-    this.equal(Maddy.min(names, function(name, _arg){
+    this.equal(min(function(name, _arg){
       var age;
       age = _arg.age;
       return age;
-    }), 'M_J', "`min` returns the minimum member value as computed by the callback function");
+    }, names), 'M_J', "`min` returns the minimum member value as computed by the callback function");
     return this.done(1);
-  });
-  spec.add('partition', function(){
-    var names, results;
+  }, Maddy));
+  spec.add('partition', Maddy.curry(function(_arg){
+    var partition, names, results;
+    partition = _arg.partition;
     names = {
       jdalton: "John-David Dalton",
       mathias: "Mathias Bynens",
@@ -836,13 +846,14 @@
         M_J: "Maddy Jalbert"
       }
     ];
-    this.deepEqual(Maddy.partition(names, function(user, name){
+    this.deepEqual(partition(function(user, name){
       return name.length > 13;
-    }), results, "`partition` separates object members using the criteria specified by the callback");
+    }, names), results, "`partition` separates object members using the criteria specified by the callback");
     return this.done(1);
-  });
-  spec.add('groupBy', function(){
-    var guests, groups;
+  }, Maddy));
+  spec.add('groupBy', Maddy.curry(function(_arg){
+    var groupBy, guests, groups;
+    groupBy = _arg.groupBy;
     guests = {
       Kit: 'lasagna',
       Mathias: 'sushi',
@@ -869,13 +880,14 @@
         Sam: 'pierogi'
       }
     };
-    this.deepEqual(Maddy.groupBy(guests, function(name, food){
+    this.deepEqual(groupBy(function(name, food){
       return food;
-    }), groups, "`groupBy` groups members using the criteria specified by the callback");
+    }, guests), groups, "`groupBy` groups members using the criteria specified by the callback");
     return this.done(1);
-  });
-  spec.add('keys', function(){
-    var exception, sparse, names;
+  }, Maddy));
+  spec.add('keys', Maddy.curry(function(_arg){
+    var keys, exception, sparse, names;
+    keys = _arg.keys;
     exception = /TypeError/;
     sparse = Array(10);
     names = {
@@ -883,49 +895,52 @@
       mathias: 'Mathias',
       M_J: 'Maddy'
     };
-    this.deepEqual(Maddy.keys(names), ['jdalton', 'mathias', 'M_J'], "`keys` should return an array of direct property names");
+    this.deepEqual(keys(names), ['jdalton', 'mathias', 'M_J'], "`keys` should return an array of direct property names");
     sparse.push(1);
-    this.deepEqual(Maddy.keys(sparse), ['10'], "A sparse array should contain only one key");
+    this.deepEqual(keys(sparse), ['10'], "A sparse array should contain only one key");
     this.error(function(){
-      return Maddy.keys(null);
+      return keys(null);
     }, exception, "`null` should throw a `TypeError");
     this.error(function(){
-      return Maddy.keys();
+      return keys();
     }, exception, "`undefined` should throw a `TypeError");
     this.error(function(){
-      return Maddy.keys(1);
+      return keys(1);
     }, exception, "`Number primitives should throw a `TypeError");
     this.error(function(){
-      return Maddy.keys('Maddy');
+      return keys('Maddy');
     }, exception, "String primitives should throw a `TypeError");
     this.error(function(){
-      return Maddy.keys(true);
+      return keys(true);
     }, exception, "Boolean primitives should throw a `TypeError");
     return this.done(7);
-  });
-  spec.add('values', function(){
-    var runners;
+  }, Maddy));
+  spec.add('values', Maddy.curry(function(_arg){
+    var values, runners;
+    values = _arg.values;
     runners = {
       kitcam: 'Kit',
       M_J: 'Maddy'
     };
-    this.deepEqual(Maddy.values(runners), ['Kit', 'Maddy'], "`values` should return an array of direct property values");
+    this.deepEqual(values(runners), ['Kit', 'Maddy'], "`values` should return an array of direct property values");
     return this.done(1);
-  });
-  spec.add('extend', function(){
-    this.deepEqual(Maddy.extend({}, {
+  }, Maddy));
+  spec.add('extend', Maddy.curry(function(_arg){
+    var extend;
+    extend = _arg.extend;
+    this.deepEqual(extend({}, {
       a: 'b'
     }), {
       a: 'b'
     }, "`extend` can copy source properties to the target object");
-    this.deepEqual(Maddy.extend({
+    this.deepEqual(extend({
       a: 'x'
     }, {
       a: 'b'
     }), {
       a: 'b'
     }, "Non-unique source properties should overwrite destination properties");
-    this.deepEqual(Maddy.extend({
+    this.deepEqual(extend({
       x: 'x'
     }, {
       a: 'b'
@@ -933,7 +948,7 @@
       x: 'x',
       a: 'b'
     }, "Unique source properties should be copied to the target object");
-    this.deepEqual(Maddy.extend({
+    this.deepEqual(extend({
       x: 'x'
     }, {
       a: 'a',
@@ -945,9 +960,10 @@
       a: 'b'
     }, "The last defined property should be used when multiple source objects are provided");
     return this.done(4);
-  });
-  spec.add('isEmpty', function(){
-    var Class, kit;
+  }, Maddy));
+  spec.add('isEmpty', Maddy.curry(function(_arg){
+    var isEmpty, Class, kit;
+    isEmpty = _arg.isEmpty;
     Class = (function(){
       Class.displayName = 'Class';
       var prototype = Class.prototype;
@@ -958,24 +974,24 @@
     kit = {
       kitcam: 'Kit'
     };
-    this.ok(Maddy.isEmpty(null), "`null` is empty");
-    this.ok(Maddy.isEmpty(), "`undefined` is empty");
-    this.ok(Maddy.isEmpty([]), "Empty array");
-    this.ok(Maddy.isEmpty({}), "Empty object literal");
-    this.ok(Maddy.isEmpty(new Class), "Empty object instance");
-    this.ok(Maddy.isEmpty(""), "Zero-length string primitive");
-    this.ok(Maddy.isEmpty(new String), "Zero-length string object");
-    this.ok(Maddy.isEmpty(/(?:)/), "Empty RegExp");
-    this.ok(!Maddy.isEmpty('John-David'), "Non-empty string primitive");
-    this.ok(!Maddy.isEmpty(/Maddy/), "Non-empty RegExp");
-    this.ok(!Maddy.isEmpty(new Date), "Date object");
-    this.ok(!Maddy.isEmpty(false), "Boolean primitive");
-    this.ok(!Maddy.isEmpty([1]), "Array with one element");
-    this.ok(!Maddy.isEmpty(kit), "Object literal with one member");
+    this.ok(isEmpty(null), "`null` is empty");
+    this.ok(isEmpty(), "`undefined` is empty");
+    this.ok(isEmpty([]), "Empty array");
+    this.ok(isEmpty({}), "Empty object literal");
+    this.ok(isEmpty(new Class), "Empty object instance");
+    this.ok(isEmpty(""), "Zero-length string primitive");
+    this.ok(isEmpty(new String), "Zero-length string object");
+    this.ok(isEmpty(/(?:)/), "Empty RegExp");
+    this.ok(!isEmpty('John-David'), "Non-empty string primitive");
+    this.ok(!isEmpty(/Maddy/), "Non-empty RegExp");
+    this.ok(!isEmpty(new Date), "Date object");
+    this.ok(!isEmpty(false), "Boolean primitive");
+    this.ok(!isEmpty([1]), "Array with one element");
+    this.ok(!isEmpty(kit), "Object literal with one member");
     delete kit.kitcam;
-    this.ok(Maddy.isEmpty(kit), "Removing all direct properties from an object should empty it");
+    this.ok(isEmpty(kit), "Removing all direct properties from an object should empty it");
     return this.done(15);
-  });
+  }, Maddy));
   if (typeof define === 'function' && define.amd != null) {
     define(function(){
       return spec;
