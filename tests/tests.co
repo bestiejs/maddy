@@ -688,9 +688,7 @@ spec.add \keys, Maddy.curry ({keys}) ->
     mathias: \Mathias
     M_J: \Maddy
 
-  # Most browsers enumerate keys in the order in which they were defined, though this behavior is
-  # unspecified in ES 5.1 section 12.6.4.
-  @deepEqual keys(names), [\jdalton \mathias \M_J], "`keys` should return an array of direct property names"
+  @deepEqual keys(names), [\M_J \jdalton \mathias], "`keys` should return a lexicographically-sorted array of direct property names"
 
   # Sparse arrays.
   sparse.push 1
@@ -710,7 +708,7 @@ spec.add \values, Maddy.curry ({values}) ->
     kitcam: \Kit
     M_J: \Maddy
 
-  @deepEqual values(runners), [\Kit \Maddy], "`values` should return an array of direct property values"
+  @deepEqual values(runners), [\Kit \Maddy], "`values` should return a lexicographically-sorted array of direct property values"
   @done 1
 , Maddy
 

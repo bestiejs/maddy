@@ -895,7 +895,7 @@
       mathias: 'Mathias',
       M_J: 'Maddy'
     };
-    this.deepEqual(keys(names), ['jdalton', 'mathias', 'M_J'], "`keys` should return an array of direct property names");
+    this.deepEqual(keys(names), ['M_J', 'jdalton', 'mathias'], "`keys` should return a lexicographically-sorted array of direct property names");
     sparse.push(1);
     this.deepEqual(keys(sparse), ['10'], "A sparse array should contain only one key");
     this.error(function(){
@@ -922,7 +922,7 @@
       kitcam: 'Kit',
       M_J: 'Maddy'
     };
-    this.deepEqual(values(runners), ['Kit', 'Maddy'], "`values` should return an array of direct property values");
+    this.deepEqual(values(runners), ['Kit', 'Maddy'], "`values` should return a lexicographically-sorted array of direct property values");
     return this.done(1);
   }, Maddy));
   spec.add('extend', Maddy.curry(function(_arg){
