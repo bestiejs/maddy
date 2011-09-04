@@ -915,16 +915,6 @@
     }, exception, "Boolean primitives should throw a `TypeError");
     return this.done(7);
   }, Maddy));
-  spec.add('values', Maddy.curry(function(_arg){
-    var values, runners;
-    values = _arg.values;
-    runners = {
-      kitcam: 'Kit',
-      M_J: 'Maddy'
-    };
-    this.deepEqual(values(runners), ['Kit', 'Maddy'], "`values` should return a lexicographically-sorted array of direct property values");
-    return this.done(1);
-  }, Maddy));
   spec.add('extend', Maddy.curry(function(_arg){
     var extend;
     extend = _arg.extend;

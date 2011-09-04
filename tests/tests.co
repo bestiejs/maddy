@@ -703,15 +703,6 @@ spec.add \keys, Maddy.curry ({keys}) ->
   @done 7
 , Maddy
 
-spec.add \values, Maddy.curry ({values}) ->
-  runners =
-    kitcam: \Kit
-    M_J: \Maddy
-
-  @deepEqual values(runners), [\Kit \Maddy], "`values` should return a lexicographically-sorted array of direct property values"
-  @done 1
-, Maddy
-
 spec.add \extend, Maddy.curry ({extend}) ->
   @deepEqual (extend {}, a: \b), a: \b, "`extend` can copy source properties to the target object"
   @deepEqual (extend {a: \x}, {a: \b}), a: \b, "Non-unique source properties should overwrite destination properties"
