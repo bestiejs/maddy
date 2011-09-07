@@ -1,8 +1,8 @@
 {
   "name": "maddy",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A functional object operations library.",
-  "homepage": "http://github.com/kitcambridge/maddy",
+  "homepage": "http://kitcambridge.github.com/maddy",
   "main": "./lib/maddy",
   "keywords": ["utility", "functional", "object", "iteration", "enumerable", "hash", "maddy", "array", "ecma"],
   "licenses": [{
