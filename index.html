@@ -169,17 +169,6 @@ callback({"kitcam": "Kit", "maddy": "Maddy"});
 
 <h2 id="generic-methods">Generic Methods</h2>
 
-<h3 id="forEach">forEach <code>Maddy.forEach(callback, [context], object)</code></h3>
-<p>Iterates over an <strong>object</strong>, invoking a <strong>callback</strong> function for each iteration. The iteration algorithm is normalized to account for cross-environment inconsistencies, including the <a href="https://developer.mozilla.org/en/ECMAScript_DontEnum_attribute">JScript <code>[[DontEnum]]</code> bug</a>, the Safari 2 <a href="http://web.archive.org/web/20090428222941/http://tobielangel.com/2007/1/29/for-in-loop-broken-in-safari/">property shadowing bug</a>, and inconsistent enumeration of the <code>prototype</code> and <code>constructor</code> properties.</p>
-
-<p>The <strong>callback</strong> is bound to the optional <strong>context</strong> object, if one is specified, and accepts three arguments: <code>(key, value, object)</code>.</p>
-
-<pre><code>Maddy.forEach(function (pseudonym, name, object) {
-  console.log(pseudonym + ": " + name);
-}, {"jdalton": "John-David Dalton", "kitcam": "Kit Cambridge"});
-=&gt; Prints `"jdalton: John-David Dalton"` and `"kitcam: Kit Cambridge"`.
-</code></pre>
-
 <h3 id="isPropertyOf">isPropertyOf <code>Maddy.isPropertyOf(object, property)</code></h3>
 <p>Determines if <strong>property</strong> is a direct property of the specified <strong>object</strong>.</p>
 
@@ -354,6 +343,17 @@ Maddy.keys({"name": "Kit", "age": 18, developer: true, hobbies: ["running", "pro
 <h2 id="functional-methods">Functional Methods</h2>
 
 <p><strong>Note</strong>: These methods <strong>should not be used with arrays</strong> or index-based collections, as they are exceedingly inefficient for this purpose. Consider <a href="http://documentcloud.github.com/underscore/">Underscore</a> or <a href="http://osteele.com/sources/javascript/functional/">Functional</a> instead.</p>
+
+<h3 id="forEach">forEach <code>Maddy.forEach(callback, [context], object)</code></h3>
+<p>Iterates over an <strong>object</strong>, invoking a <strong>callback</strong> function for each iteration. The iteration algorithm is normalized to account for cross-environment inconsistencies, including the <a href="https://developer.mozilla.org/en/ECMAScript_DontEnum_attribute">JScript <code>[[DontEnum]]</code> bug</a>, the Safari 2 <a href="http://web.archive.org/web/20090428222941/http://tobielangel.com/2007/1/29/for-in-loop-broken-in-safari/">property shadowing bug</a>, and inconsistent enumeration of the <code>prototype</code> and <code>constructor</code> properties.</p>
+
+<p>The <strong>callback</strong> is bound to the optional <strong>context</strong> object, if one is specified, and accepts three arguments: <code>(key, value, object)</code>.</p>
+
+<pre><code>Maddy.forEach(function (pseudonym, name, object) {
+  console.log(pseudonym + ": " + name);
+}, {"jdalton": "John-David Dalton", "kitcam": "Kit Cambridge"});
+=&gt; Prints `"jdalton: John-David Dalton"` and `"kitcam: Kit Cambridge"`.
+</code></pre>
 
 <h3 id="map">map, collect <code>Maddy.map(callback, [context], object)</code></h3>
 <p>Returns an object containing the results of invoking a <strong>callback</strong> function on each <strong>object</strong> member.</p>
