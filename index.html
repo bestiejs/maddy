@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Maddy object operations library</title>
+  <style>
+  html {
+    font: 15px/26px "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
+    margin: 10px 5%;
+  }
+
+  body {
+    width: 65%;
+  }
+
+  a {
+    padding: 1px;
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  a:hover, a:focus {
+    text-decoration: none;
+  }
+
+  img {
+    float: right;
+    padding: 0 0 10px 15px;
+  }
+
+  h1, h2, h3 {
+    margin: 15px 0 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  h1 {
+    font-size: 36px;
+    padding: 15px 0 15px;
+  }
+
+  h2 {
+    font-size: 24px;
+    padding: 10px 0 10px;
+  }
+
+  h3 {
+    font-size: 18px;
+    padding: 5px 0 5px;
+    border-bottom-style: dotted;
+  }
+
+  h3 code {
+    float: right;
+  }
+
+  pre, code {
+    font: normal 12px/18px Menlo, Monaco, Consolas, "Lucida Console", monospace;
+  }
+
+  pre {
+    background-color: #f8f8ff;
+    padding: 10px;
+    border: 1px solid #eee;
+    overflow: auto;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  td {
+    border: 1px dotted #ccc;
+    padding: 5px;
+    width: 20%;
+  }
+  </style>
+</head>
+<body>
+<h1 id="maddy">Maddy</h1>
+
+<p><strong>Maddy</strong> is a functional object operations library. It provides various <a href="http://en.wikipedia.org/wiki/Higher-order_function">higher-order functions</a> typical of a functional programming library, as well as specialized methods for determining deep equality and recursively serializing objects. All recursive methods fully support cyclic structures.</p>
+
+<p>Maddy is compatible with web browsers, <a href="http://www.commonjs.org/">CommonJS</a> environments, JavaScript engines, and asynchronous script loaders. It also normalizes infamous bugs present in older environments.</p>
+
+<p>The project is <a href="http://github.com/kitcambridge/maddy">hosted on GitHub</a>, along with the <a href="tests/tests.html">unit tests</a> and <a href="docs/maddy.html">annotated source code</a>. You can use the <a href="http://github.com/kitcambridge/maddy/issues">GitHub issue tracker</a> to submit bug reports and discuss feature requests, or send tweets to <a href="http://twitter.com/kitcambridge">@kitcambridge</a>.</p>
+
+<h2 id="downloads">Downloads</h2>
+
+<p>The current version is <strong>0.3.0</strong>.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Development Version</strong></td>
+      <td><a href="lib/maddy.js">Download</a> <em>(26 KB, commented and uncompressed)</em></td>
+    </tr>
+    <tr>
+      <td><strong>Production Version</strong></td>
+      <td><a href="lib/maddy.min.js">Download</a> <em>(2.3 KB, compressed using <a href="http://closure-compiler.appspot.com/home">Closure Compiler</a>)</em></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="table-of-contents">Table of Contents</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Utility Methods</strong></td>
+      <td><a href="#noConflict">noConflict</a>, <a href="#curry">curry</a></td>
+    </tr>
+    <tr>
+      <td><strong>Generic Methods</strong></td>
+      <td><a href="#isPropertyOf">isPropertyOf</a>, <a href="#getClassOf">getClassOf</a>, <a href="#isEqual">isEqual</a>, <a href="#stringify">stringify</a>, <a href="#isEmpty">isEmpty</a>, <a href="#keys">keys</a>, <a href="#extend">extend</a></td>
+    </tr>
+    <tr>
+      <td><strong>Functional Methods</strong></td>
+      <td><a href="#forEach">forEach</a>, <a href="#map">map</a>, <a href="#fold">fold</a>, <a href="#some">some</a>, <a href="#select">select</a>, <a href="#invoke">invoke</a>, <a href="#all">all</a>, <a href="#reject">reject</a>, <a href="#max">max</a>, <a href="#min">min</a>, <a href="#partition">partition</a>, <a href="#groupBy">groupBy</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="utility-methods">Utility Methods</h2>
+
+<h3 id="noConflict">noConflict <code>Maddy.noConflict()</code></h3>
+<p>Restores the original value of the global <code>Maddy</code> variable and returns a reference to the Maddy object. <em><code>noConflict</code> is not available in CommonJS environments, and <strong>cannot be invoked more than once</strong></em>.</p>
+
+<pre><code>var Associative = Maddy.noConflict();
+typeof Maddy;
+// =&gt; The type of the original value of the `Maddy` variable.
+
+// `noConflict` can only be invoked once.
+typeof Associative.noConflict;
+// =&gt; "undefined"
+
+typeof Associative.map;
+// =&gt; "function"
+</code></pre>
+
+<h3 id="curry">curry <code>Maddy.curry(function, [*arguments])</code></h3>
+<p>Partially applies a <strong>function</strong>, returning a function that, when invoked, calls the original <strong>function</strong> with the <strong>arguments</strong> prepended to any additional arguments.</p>
+
+<p><code>curry</code> can be invoked on itself (i.e., <code>Maddy.curry(Maddy.curry, ...)</code>) to produce a function that, when called, will return a curried function for further partial application. <code>curry</code> can also be used with other higher-order functions, providing a convenient way to invoke a single callback function on multiple objects.</p>
+
+<pre><code>function convert(ratio, symbol, input) {
+  return (input * ratio).toFixed(1) + " " + symbol;
+}
+var pounds = Maddy.curry(convert, 2.2, "lbs.");
+pounds(4);
+// =&gt; "8.8 lbs."
+
+var pints = Maddy.curry(convert, 1.98);
+pints("U.S. pints", 2.4);
+// =&gt; "4.8 U.S. pints"
+
+var meta = Maddy.curry(Maddy.curry, convert);
+var kilometers = meta(1.62, "km");
+kilometers(34);
+// =&gt; "55.1 km"
+
+var callback = Maddy.curry(Maddy.forEach, function (key, value) {
+  console.log(key + ": " + value);
+});
+callback({"jdalton": "John-David", "mathias": "Mathias"});
+// =&gt; Prints `"jdalton: John-David" and "mathias: Mathias"`
+callback({"kitcam": "Kit", "maddy": "Maddy"});
+// =&gt; Prints `"kitcam: Kit" and "maddy: Maddy"`
+</code></pre>
+
+<h2 id="generic-methods">Generic Methods</h2>
+
+<h3 id="forEach">forEach <code>Maddy.forEach(callback, [context], object)</code></h3>
+<p>Iterates over an <strong>object</strong>, invoking a <strong>callback</strong> function for each iteration. The iteration algorithm is normalized to account for cross-environment inconsistencies, including the <a href="https://developer.mozilla.org/en/ECMAScript_DontEnum_attribute">JScript <code>[[DontEnum]]</code> bug</a>, the Safari 2 <a href="http://web.archive.org/web/20090428222941/http://tobielangel.com/2007/1/29/for-in-loop-broken-in-safari/">property shadowing bug</a>, and inconsistent enumeration of the <code>prototype</code> and <code>constructor</code> properties.</p>
+
+<p>The <strong>callback</strong> is bound to the optional <strong>context</strong> object, if one is specified, and accepts three arguments: <code>(key, value, object)</code>.</p>
+
+<pre><code>Maddy.forEach(function (pseudonym, name, object) {
+  console.log(pseudonym + ": " + name);
+}, {"jdalton": "John-David Dalton", "kitcam": "Kit Cambridge"});
+=&gt; Prints `"jdalton: John-David Dalton"` and `"kitcam: Kit Cambridge"`.
+</code></pre>
+
+<h3 id="isPropertyOf">isPropertyOf <code>Maddy.isPropertyOf(object, property)</code></h3>
+<p>Determines if <strong>property</strong> is a direct property of the specified <strong>object</strong>.</p>
+
+<pre><code>function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+Person.prototype.say = function (message) {
+  return this.name + ": " + message;
+};
+
+var kit = new Person("Kit", 18);
+
+Maddy.isPropertyOf(kit, "name"); // =&gt; true
+Maddy.isPropertyOf(kit, "age"); // =&gt; true
+Maddy.isPropertyOf(kit, "say"); // =&gt; false
+</code></pre>
+
+<h3 id="getClassOf">getClassOf <code>Maddy.getClassOf(object)</code></h3>
+<p>Returns the internal <code>[[Class]]</code> name of the provided <strong>object</strong>. To account for cross-environment inconsistencies, only the following <code>[[Class]]</code> names are supported: <code>Function</code>, <code>Array</code>, <code>Date</code>, <code>RegExp</code>, <code>String</code>, <code>Boolean</code>, and <code>Number</code>.</p>
+
+<p>Note that <code>Null</code> and <code>Undefined</code> are not <code>[[Class]]</code> names, but are implemented for parity with <code>Object::toString</code>.</p>
+
+<pre><code>Maddy.getClassOf(null); // =&gt; "Null"
+Maddy.getClassOf(); // =&gt; "Undefined"
+
+Maddy.getClassOf("Maddy"); // =&gt; "String"
+Maddy.getClassOf(new String("Maddy")); // =&gt; "String"
+
+Maddy.getClassOf(5); // =&gt; "Number"
+Maddy.getClassOf(new Boolean(true)); // =&gt; "Boolean"
+
+Maddy.getClassOf({}); // =&gt; "Object"
+Maddy.getClassOf([]); // =&gt; "Array"
+Maddy.getClassOf(function () {}); // =&gt; "Function"
+Maddy.getClassOf(/(?:)/); // =&gt; "RegExp"
+Maddy.getClassOf(new Date); // =&gt; "Date"
+</code></pre>
+
+<h3 id="isEqual">isEqual <code>Maddy.isEqual([left, right])</code></h3>
+<p>Recursively compares two objects (<code>left</code> and <code>right</code>) using the following algorithm:</p>
+
+<ul>
+  <li>Identical values (<code>left === right</code>) are automatically equivalent.</li>
+  <li><code>0</code> is <a href="http://wiki.ecmascript.org/doku.php?id=harmony:egal">not equal</a> to <code>-0</code>.</li>
+  <li>Objects with different <code>[[Class]]</code> names are not equivalent.</li>
+  <li><code>null</code>, <code>undefined</code>, and functions are compared by identity.</li>
+  <li>Strings, numbers, and booleans are compared by value. Primitives and their corresponding object wrappers are equivalent; hence, <code>"5"</code> is equivalent to <code>new String("5")</code>.</li>
+  <li><code>NaN</code> is equivalent to <code>NaN</code>.</li>
+  <li>Dates are compared by their millisecond representations. Invalid dates (e.g, <code>new Date("Maddy")</code>) are not equivalent.</li>
+  <li>RegExps are compared by their source patterns and flags.</li>
+  <li>Arrays must contain equivalent contents. Non-numeric properties are ignored; sparse arrays (e.g., <code>Array(10)</code>) are supported.</li>
+  <li>Objects must contain equivalent <strong>direct members</strong>. Members in the prototype chain are ignored.</li>
+</ul>
+
+<p><em>Note: JScript 5, implemented in Internet Explorer 6-8, <strong>treats <code>undefined</code> elements in arrays as elisions</strong>. Thus, in Internet Explorer, sparse arrays (<code>Array(3)</code>) are equivalent to dense arrays containing <code>undefined</code> values (<code>[undefined, undefined, undefined]</code>).</em></p>
+
+<pre><code>Maddy.isEqual(0, 0); // =&gt; true
+Maddy.isEqual(0, -0); // =&gt; false
+Maddy.isEqual("", 0); // =&gt; false
+Maddy.isEqual(false, ""); // =&gt; false
+Maddy.isEqual(null, undefined); // =&gt; false
+
+Maddy.isEqual("Kit", new String("Kit")); // =&gt; true
+Maddy.isEqual(new String("Kit"), new String("Kit")); // =&gt; true
+Maddy.isEqual(new Number(3), new Number(3)); // =&gt; true
+Maddy.isEqual(NaN, NaN); // =&gt; true
+
+Maddy.isEqual(new Date(2009, 4, 9), new Date(2009, 4, 9)); // =&gt; true
+Maddy.isEqual(new Date("Kit"), new Date("Kit")); // =&gt; false;
+
+Maddy.isEqual(/(?:)/gim, /(?:)/gim); // =&gt; true
+Maddy.isEqual(/(?:)/gi, /(?:)/gm); // =&gt; false
+Maddy.isEqual(/Kit/gm, /Maddy/gm); // =&gt; false
+
+var elements = [], equivalent = [];
+elements.push(elements, 1, new String("Kit"), new Number(3), elements);
+equivalent.push(equivalent, new Number(1), new String("Kit"), 3, equivalent);
+Maddy.isEqual(elements, equivalent); // =&gt; true
+
+elements = {};
+equivalent = {};
+elements.elements = elements;
+equivalent.elements = equivalent;
+Maddy.isEqual(elements, equivalent); // =&gt; true
+</code></pre>
+
+<h3 id="stringify">stringify <code>Maddy.stringify(object)</code></h3>
+<p>Returns a debug-oriented representation of an object, similar to <code>JSON.stringify</code>. Objects are serialized according to a superset of the <a href="https://developer.mozilla.org/en/JSON">JSON encoding algorithm</a>:</p>
+
+<ul>
+  <li>Booleans, finite numbers, and <code>null</code> are represented as such.</li>
+  <li>Cyclic structures, <code>Infinity</code>, <code>NaN</code>, invalid dates, and all other non-JSON values are serialized as <code>null</code>.</li>
+  <li>Strings are wrapped in double quotes. All JSON control characters are escaped.</li>
+  <li>Dates are converted to simplified ISO 8601 strings: <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>.</li>
+  <li>RegExps are converted to their corresponding object representations.</li>
+</ul>
+
+<p><em>Note that custom <code>toJSON</code> methods are <strong>ignored</strong></em>.</p>
+
+<pre><code>Maddy.stringify([1, 2, 3, "Kit", {"name": "Maddy"}, NaN, Infinity]);
+// =&gt; "[1, 2, 3, \"Kit\", {\"name\": \"Maddy\"}, null, null]"
+
+Maddy.stringify("Hello\tthis\bis\\nice");
+// =&gt; "\"Hello\tthis\bis\\nice\""
+
+Maddy.stringify(/(?:)/);
+// =&gt; "{\"source\": \"(?:)\", \"global\": false, \"ignoreCase\": false, \"multiline\": false}"
+
+Maddy.stringify({"kitcam": [new String("Kit Cambridge"), new Number(18)]});
+// =&gt; "{\"kitcam\": [\"Kit Cambridge\", 18]}"
+
+Maddy.stringify(new Date(Date.UTC(1994, 06, 03)));
+// =&gt; "\"1994-07-03T00:00:00.000Z\""
+
+Maddy.stringify();
+// =&gt; "null"
+
+Maddy.stringify({"value": new Boolean(true), "toJSON": function () {
+  return this.value.valueOf();
+}});
+// =&gt; "{\"value\": true, \"toJSON\": null}"
+
+var structure = [];
+structure.push(structure, 2, structure, 4, structure);
+Maddy.stringify(structure);
+// =&gt; "[null, 2, null 4, null]"
+</code></pre>
+
+<h3 id="isEmpty">isEmpty <code>Maddy.isEmpty(object)</code></h3>
+<p>Checks if the provided <strong>object</strong> is empty using the following algorithm:</p>
+
+<ul>
+  <li><code>null</code>, <code>undefined</code> <code>NaN</code>, <code>Infinity</code>, and dates with invalid millisecond values are empty.</li>
+  <li>Booleans, functions, and RegExps are never empty.</li>
+  <li>Strings and arrays are empty if they have a <code>length</code> of zero.</li>
+  <li>All other objects are empty if they contain no direct properties.</li>
+</ul>
+
+<p><em><code>isEmpty</code> <strong>does not distinguish</strong> between primitives and their corresponding object wrappers.</em></p>
+
+<pre><code>Maddy.isEmpty(null); // =&gt; true
+Maddy.isEmpty(); // =&gt; true
+
+Maddy.isEmpty(Infinity); // =&gt; true
+Maddy.isEmpty(NaN); // =&gt; true
+Maddy.isEmpty(new Date("Invalid Date")); // =&gt; true
+
+Maddy.isEmpty({}); // =&gt; true
+Maddy.isEmpty([1, 2, 3]); // =&gt; false
+Maddy.isEmpty(""); // =&gt; true
+Maddy.isEmpty(/(?:)/); // =&gt; false
+</code></pre>
+
+<h3 id="keys">keys <code>Maddy.keys(object)</code></h3>
+<p>Returns a lexicographically-sorted array of an <strong>object</strong>’s property names.</p>
+
+<pre><code>Maddy.keys({"first": 1, "second": 2, "third": 3});
+// =&gt; ["first", "second", "third"]
+
+Maddy.keys({"name": "Kit", "age": 18, developer: true, hobbies: ["running", "programming"]});
+// =&gt; ["age", "developer", "hobbies", "name"]
+</code></pre>
+
+<h3 id="extend">extend <code>Maddy.extend(destination, *sources)</code></h3>
+<p>Extends a <strong>destination</strong> object with the properties of one or more <strong>sources</strong>.</p>
+
+<pre><code>Maddy.extend({"name": "Kit"}, {"age": 18}, {"hobbies": ["running", "programming"]});
+// =&gt; {"name": "Kit", "age": 18, "hobbies": ["running", "programming"]}
+</code></pre>
+
+<h2 id="functional-methods">Functional Methods</h2>
+
+<p><strong>Note</strong>: These methods <strong>should not be used with arrays</strong> or index-based collections, as they are exceedingly inefficient for this purpose. Consider <a href="http://documentcloud.github.com/underscore/">Underscore</a> or <a href="http://osteele.com/sources/javascript/functional/">Functional</a> instead.</p>
+
+<h3 id="map">map, collect <code>Maddy.map(callback, [context], object)</code></h3>
+<p>Returns an object containing the results of invoking a <strong>callback</strong> function on each <strong>object</strong> member.</p>
+
+<pre><code>Maddy.map(function (pseudonym, data) {
+  return [data.name, data.age];
+}, {
+  "jdalton": {"name": "John-David", "age": 29},
+  "kitcam": {"name": "Kit Cambridge", "age": 18}
+});
+// =&gt; {"jdalton": ["John-David", 29], "kitcam": ["Kit Cambridge", 18]}
+</code></pre>
+
+<h3 id="fold">fold, inject, reduce <code>Maddy.fold(callback, [context], memo, object)</code></h3>
+<p>Reduces an <strong>object</strong> to a single value by successively invoking the <strong>callback</strong> function on each member. <strong>memo</strong> specifies the initial state of the reduction; each <em>n</em>th invocation of <strong>callback</strong> should return the value of <strong>memo</strong> to be used in the <em>n+1</em>th invocation.</p>
+
+<p>The <strong>callback</strong> function accepts four arguments: <code>(memo, key, value, object)</code>.</p>
+
+<pre><code>Maddy.fold(function (memo, name, occupation) {
+  return memo.push(name, occupation), memo;
+}, [], {"kitcam": "programmer", "maddy": "runner"}).sort();
+// =&gt; ["kitcam", "maddy", "programmer", "runner"]
+
+Maddy.reduce(function (memo, name, year) {
+  return memo[year] = name, memo;
+}, {}, {"Perl": 1987, "Haskell": 1990, "JavaScript": 1996});
+// =&gt; {1987: "Perl", 1990: "Haskell", 1996: "JavaScript"}
+
+Maddy.inject(function (memo, name, age) {
+  return memo + age;
+}, 0, {"jdalton": 29, "kitcam": 18, "maddy": 17});
+// =&gt; 64
+</code></pre>
+
+<h3 id="some">some, any <code>Maddy.some(callback, [context], object)</code></h3>
+<p>Determines if the <strong>callback</strong> returns <code>true</code> for at least one <strong>object</strong> member.</p>
+
+<pre><code>Maddy.some(function (name, year) {
+  return name &gt; "Lua" &amp;&amp; year &gt; 1990;
+}, {"Haskell": 1990, "JavaScript": 1996, "Python": 1991});
+// =&gt; true
+</code></pre>
+
+<h3 id="select">select, findAll, filter <code>Maddy.select(callback, [context], object)</code></h3>
+<p>Returns an object containing all <strong>object</strong> members for which the <strong>callback</strong> returns <code>true</code>. <a href="#reject"><code>reject</code></a> is the opposite of this method.</p>
+
+<pre><code>Maddy.select(function (name, year) {
+  return year &gt; 2007;
+}, {"Functional": 2007, "Underscore": 2009, "Maddy": 2011});
+// =&gt; {"Underscore": 2009, "Maddy": 2011}
+
+Maddy.findAll(function (name, year) {
+  return name &gt; "Sencha" &amp;&amp; year &gt; 2007;
+}, {"Prototype": 2005, "MooTools": 2006, "Underscore": 2009});
+// =&gt; {"Underscore": 2009}
+</code></pre>
+
+<h3 id="invoke">invoke, send <code>Maddy.invoke(object, method, [*arguments])</code></h3>
+<p>Invokes a <strong>method</strong> with optional <strong>arguments</strong> on every <strong>object</strong> member value. <code>invoke</code> does not directly mutate the original object, but the object may be mutated by the <strong>method</strong>.</p>
+
+<pre><code>Maddy.invoke({1990: "**Haskell**", 1993: "_*Ruby*_"}, "slice", 2, -2);
+// =&gt; {1990: "Haskell", 1993: "Ruby"}
+
+// Note that the original object may be indirectly mutated by the invoked method.
+var developers = {"mathias": ["Mathias Bynens", 23], "kitcam": ["Kit Cambridge", 18]};
+
+Maddy.send(developers, "shift");
+// =&gt; {"mathias": "Mathias Bynens", "kitcam": "Kit Cambridge"}
+
+developers;
+// =&gt; {"mathias": [23], "kitcam": [18]}
+</code></pre>
+
+<h3 id="all">all, every <code>Maddy.all(callback, [context], object)</code></h3>
+<p>Determines whether the <strong>callback</strong> returns <code>true</code> for all <strong>object</strong> members.</p>
+
+<pre><code>Maddy.all(function (name, year) {
+  return name &lt; "Visual Basic";
+}, {"Haskell": 1990, "JavaScript": 1996, "Python": 1991});
+// =&gt; true
+</code></pre>
+
+<h3 id="reject">reject <code>Maddy.reject(callback, [context], object)</code></h3>
+<p>Returns an object containing all <strong>object</strong> members for which the <strong>callback</strong> returns <code>false</code>. <a href="#select"><code>select</code></a> is the opposite of this method.</p>
+
+<pre><code>Maddy.reject(function (name, year) {
+  return year &gt; 2010;
+}, {"Backbone": 2010, "Underscore": 2009, "Maddy": 2011});
+// =&gt; {"Backbone": 2010, "Underscore": 2009}
+</code></pre>
+
+<h3 id="max">max <code>Maddy.max(callback, [context], object)</code></h3>
+<p>Returns the key of the maximum <strong>object</strong> member-based computation. Members are compared by invoking the <strong>callback</strong> on each member and comparing successive return values.</p>
+
+<pre><code>Maddy.max(function (pseudonym, data) {
+  return data.age;
+}, {"jdalton": {"name": "John-David", "age": 29}, "mathias": {"name": "Mathias", "age": 23}});
+// =&gt; "jdalton"
+</code></pre>
+
+<h3 id="min">min <code>Maddy.min(callback, [context], object)</code></h3>
+<p>Returns the key of the minimum <strong>object</strong> member-based computation.</p>
+
+<pre><code>Maddy.min(function (pseudonym, data) {
+  return data.age;
+}, {"mathias": {"name": "Mathias", "age": 23}, "kitcam": {"name": "Kit", "age": 18}});
+// =&gt; "kitcam"
+</code></pre>
+
+<h3 id="partition">partition <code>Maddy.partition(callback, [context], object)</code></h3>
+<p>Separates an <strong>object</strong>’s members into two groups: those for which the <strong>callback</strong> returns <code>true</code>, and those for which it returns <code>false</code>. <code>partition</code> is preferred to invoking both <a href="#select"><code>select</code></a> and <a href="#reject"><code>reject</code></a> on the same <strong>object</strong>.</p>
+
+<pre><code>Maddy.partition(function (pseudonym, name) {
+  return name.length &gt; 5;
+}, {"jdalton": "John-David", "mathias": "Mathias", "kitcam": "Kit", "maddy": "Maddy"});
+// =&gt; [{"jdalton": "John-David", "mathias": "Mathias"}, {"kitcam": "Kit", "maddy": "Maddy"}]
+</code></pre>
+
+<h3 id="groupBy">groupBy <code>Maddy.groupBy(callback, [context], object)</code></h3>
+<p>Groups an <strong>object</strong>’s members using the criteria specified by the <strong>callback</strong>.</p>
+
+<pre><code>Maddy.groupBy(function (name, dish) {
+  return dish;
+}, {
+  "John-David": "lasagna",
+  "Mathias": "sushi",
+  "Maddy": "lasagna",
+  "Kit": "soup",
+  "Sam": "cinnamon rolls",
+  "Joe": "sushi",
+  "Mark": "sushi"
+});
+
+// =&gt; {
+  "lasagna": {"John-David": "lasagna", "Maddy": "lasagna"},
+  "sushi": {"Mathias": "sushi", "Joe": "sushi", "Mark": "sushi"},
+  "soup": {"Kit": "soup"},
+  "cinnamon rolls": {"Sam": "cinnamon rolls"}
+}
+</code></pre>
+
+<script src="lib/maddy.js"></script>
+</body>
+</html>
