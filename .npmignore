@@ -3,8 +3,10 @@ jsl.*
 *.tmproj
 
 tests/
-docs/
-
-index.html
-closure.sh
 lib/maddy.min.js
+
+docs/
+site/
+site.rb
+index.html
+logo.png
