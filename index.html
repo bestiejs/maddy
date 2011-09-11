@@ -3,60 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Maddy object operations library</title>
-  <style>
-  html {
-    font: 15px/26px "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
-    margin: 10px 5%;
-  }
-  body {
-    width: 65%;
-  }
-  a {
-    padding: 1px;
-    color: inherit;
-    text-decoration: underline;
-  }
-  a:hover, a:focus {
-    text-decoration: none;
-  }
-  h1, h2, h3 {
-    margin: 15px 0 15px;
-    border-bottom: 1px solid #eee;
-  }
-  h1 {
-    font-size: 36px;
-    padding: 15px 0 15px;
-  }
-  h2 {
-    font-size: 24px;
-    padding: 10px 0 10px;
-  }
-  h3 {
-    font-size: 18px;
-    padding: 5px 0 5px;
-    border-bottom-style: dotted;
-  }
-  h3 code {
-    float: right;
-  }
-  pre, code {
-    font: normal 12px/18px Menlo, Monaco, Consolas, "Lucida Console", monospace;
-  }
-  pre {
-    background-color: #f8f8ff;
-    padding: 10px;
-    border: 1px solid #eee;
-    overflow: auto;
-  }
-  table {
-    border-collapse: collapse;
-  }
-  td {
-    border: 1px dotted #ccc;
-    padding: 5px;
-    width: 20%;
-  }
-  </style>
+  <link rel="stylesheet" href="docs/docs.css" media="screen">
 </head>
 <body>
 <h1 id="maddy">Maddy</h1>
@@ -108,88 +55,92 @@
 <h3 id="noConflict">noConflict <code>Maddy.noConflict()</code></h3>
 <p>Restores the original value of the global <code>Maddy</code> variable and returns a reference to the Maddy object. <em><code>noConflict</code> is not available in CommonJS environments, and <strong>cannot be invoked more than once</strong></em>.</p>
 
-<pre><code>var Associative = Maddy.noConflict();
-typeof Maddy;
-// =&gt; The type of the original value of the `Maddy` variable.
+<div><div class="highlight"><pre><span class="kd">var</span> <span class="nx">Associative</span> <span class="o">=</span> <span class="nx">Maddy</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">();</span>
+<span class="k">typeof</span> <span class="nx">Maddy</span><span class="p">;</span>
+<span class="c1">// =&gt; The type of the original value of the `Maddy` variable.</span>
 
-// `noConflict` can only be invoked once.
-typeof Associative.noConflict;
-// =&gt; "undefined"
+<span class="c1">// `noConflict` can only be invoked once.</span>
+<span class="k">typeof</span> <span class="nx">Associative</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">;</span>
+<span class="c1">// =&gt; &quot;undefined&quot;</span>
 
-typeof Associative.map;
-// =&gt; "function"
-</code></pre>
+<span class="k">typeof</span> <span class="nx">Associative</span><span class="p">.</span><span class="nx">map</span><span class="p">;</span>
+<span class="c1">// =&gt; &quot;function&quot;</span>
+</pre></div>
+</div>
 
 <h3 id="curry">curry <code>Maddy.curry(function, [*arguments])</code></h3>
 <p>Partially applies a <strong>function</strong>, returning a function that, when invoked, calls the original <strong>function</strong> with the <strong>arguments</strong> prepended to any additional arguments.</p>
 
 <p><code>curry</code> can be invoked on itself (i.e., <code>Maddy.curry(Maddy.curry, ...)</code>) to produce a function that, when called, will return a curried function for further partial application. <code>curry</code> can also be used with other higher-order functions, providing a convenient way to invoke a single callback function on multiple objects.</p>
 
-<pre><code>function convert(ratio, symbol, input) {
-  return (input * ratio).toFixed(1) + " " + symbol;
-}
-var pounds = Maddy.curry(convert, 2.2, "lbs.");
-pounds(4);
-// =&gt; "8.8 lbs."
+<div><div class="highlight"><pre><span class="kd">function</span> <span class="nx">convert</span><span class="p">(</span><span class="nx">ratio</span><span class="p">,</span> <span class="nx">symbol</span><span class="p">,</span> <span class="nx">input</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="nx">input</span> <span class="o">*</span> <span class="nx">ratio</span><span class="p">).</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nx">symbol</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">pounds</span> <span class="o">=</span> <span class="nx">Maddy</span><span class="p">.</span><span class="nx">curry</span><span class="p">(</span><span class="nx">convert</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="s2">&quot;lbs.&quot;</span><span class="p">);</span>
+<span class="nx">pounds</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;8.8 lbs.&quot;</span>
 
-var pints = Maddy.curry(convert, 1.98);
-pints("U.S. pints", 2.4);
-// =&gt; "4.8 U.S. pints"
+<span class="kd">var</span> <span class="nx">pints</span> <span class="o">=</span> <span class="nx">Maddy</span><span class="p">.</span><span class="nx">curry</span><span class="p">(</span><span class="nx">convert</span><span class="p">,</span> <span class="mf">1.98</span><span class="p">);</span>
+<span class="nx">pints</span><span class="p">(</span><span class="s2">&quot;U.S. pints&quot;</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;4.8 U.S. pints&quot;</span>
 
-var meta = Maddy.curry(Maddy.curry, convert);
-var kilometers = meta(1.62, "km");
-kilometers(34);
-// =&gt; "55.1 km"
+<span class="kd">var</span> <span class="nx">meta</span> <span class="o">=</span> <span class="nx">Maddy</span><span class="p">.</span><span class="nx">curry</span><span class="p">(</span><span class="nx">Maddy</span><span class="p">.</span><span class="nx">curry</span><span class="p">,</span> <span class="nx">convert</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">kilometers</span> <span class="o">=</span> <span class="nx">meta</span><span class="p">(</span><span class="mf">1.62</span><span class="p">,</span> <span class="s2">&quot;km&quot;</span><span class="p">);</span>
+<span class="nx">kilometers</span><span class="p">(</span><span class="mi">34</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;55.1 km&quot;</span>
 
-var callback = Maddy.curry(Maddy.forEach, function (key, value) {
-  console.log(key + ": " + value);
-});
-callback({"jdalton": "John-David", "mathias": "Mathias"});
-// =&gt; Prints `"jdalton: John-David" and "mathias: Mathias"`
-callback({"kitcam": "Kit", "maddy": "Maddy"});
-// =&gt; Prints `"kitcam: Kit" and "maddy: Maddy"`
-</code></pre>
+<span class="kd">var</span> <span class="nx">callback</span> <span class="o">=</span> <span class="nx">Maddy</span><span class="p">.</span><span class="nx">curry</span><span class="p">(</span><span class="nx">Maddy</span><span class="p">.</span><span class="nx">forEach</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">key</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">callback</span><span class="p">({</span><span class="s2">&quot;jdalton&quot;</span><span class="o">:</span> <span class="s2">&quot;John-David&quot;</span><span class="p">,</span> <span class="s2">&quot;mathias&quot;</span><span class="o">:</span> <span class="s2">&quot;Mathias&quot;</span><span class="p">});</span>
+<span class="c1">// =&gt; Prints `&quot;jdalton: John-David&quot; and &quot;mathias: Mathias&quot;`</span>
+<span class="nx">callback</span><span class="p">({</span><span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="s2">&quot;maddy&quot;</span><span class="o">:</span> <span class="s2">&quot;Maddy&quot;</span><span class="p">});</span>
+<span class="c1">// =&gt; Prints `&quot;kitcam: Kit&quot; and &quot;maddy: Maddy&quot;`</span>
+</pre></div>
+</div>
 
 <h2 id="generic-methods">Generic Methods</h2>
 
 <h3 id="isPropertyOf">isPropertyOf <code>Maddy.isPropertyOf(object, property)</code></h3>
 <p>Determines if <strong>property</strong> is a direct property of the specified <strong>object</strong>.</p>
 
-<pre><code>function Person(name, age) {
-  this.name = name;
-  this.age = age;
-}
-Person.prototype.say = function (message) {
-  return this.name + ": " + message;
-};
+<div><div class="highlight"><pre><span class="kd">function</span> <span class="nx">Person</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">name</span><span class="p">;</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">age</span> <span class="o">=</span> <span class="nx">age</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">say</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nx">message</span><span class="p">;</span>
+<span class="p">};</span>
 
-var kit = new Person("Kit", 18);
+<span class="kd">var</span> <span class="nx">kit</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Person</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">);</span>
 
-Maddy.isPropertyOf(kit, "name"); // =&gt; true
-Maddy.isPropertyOf(kit, "age"); // =&gt; true
-Maddy.isPropertyOf(kit, "say"); // =&gt; false
-</code></pre>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">kit</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">kit</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">kit</span><span class="p">,</span> <span class="s2">&quot;say&quot;</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
+</pre></div>
+</div>
 
 <h3 id="getClassOf">getClassOf <code>Maddy.getClassOf(object)</code></h3>
 <p>Returns the internal <code>[[Class]]</code> name of the provided <strong>object</strong>. To account for cross-environment inconsistencies, only the following <code>[[Class]]</code> names are supported: <code>Function</code>, <code>Array</code>, <code>Date</code>, <code>RegExp</code>, <code>String</code>, <code>Boolean</code>, and <code>Number</code>.</p>
 
 <p>Note that <code>Null</code> and <code>Undefined</code> are not <code>[[Class]]</code> names, but are implemented for parity with <code>Object::toString</code>.</p>
 
-<pre><code>Maddy.getClassOf(null); // =&gt; "Null"
-Maddy.getClassOf(); // =&gt; "Undefined"
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span> <span class="c1">// =&gt; &quot;Null&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">();</span> <span class="c1">// =&gt; &quot;Undefined&quot;</span>
 
-Maddy.getClassOf("Maddy"); // =&gt; "String"
-Maddy.getClassOf(new String("Maddy")); // =&gt; "String"
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="s2">&quot;Maddy&quot;</span><span class="p">);</span> <span class="c1">// =&gt; &quot;String&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Maddy&quot;</span><span class="p">));</span> <span class="c1">// =&gt; &quot;String&quot;</span>
 
-Maddy.getClassOf(5); // =&gt; "Number"
-Maddy.getClassOf(new Boolean(true)); // =&gt; "Boolean"
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// =&gt; &quot;Number&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="k">new</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">));</span> <span class="c1">// =&gt; &quot;Boolean&quot;</span>
 
-Maddy.getClassOf({}); // =&gt; "Object"
-Maddy.getClassOf([]); // =&gt; "Array"
-Maddy.getClassOf(function () {}); // =&gt; "Function"
-Maddy.getClassOf(/(?:)/); // =&gt; "RegExp"
-Maddy.getClassOf(new Date); // =&gt; "Date"
-</code></pre>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">({});</span> <span class="c1">// =&gt; &quot;Object&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">([]);</span> <span class="c1">// =&gt; &quot;Array&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{});</span> <span class="c1">// =&gt; &quot;Function&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="sr">/(?:)/</span><span class="p">);</span> <span class="c1">// =&gt; &quot;RegExp&quot;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">getClassOf</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">);</span> <span class="c1">// =&gt; &quot;Date&quot;</span>
+</pre></div>
+</div>
 
 <h3 id="isEqual">isEqual <code>Maddy.isEqual([left, right])</code></h3>
 <p>Recursively compares two objects (<code>left</code> and <code>right</code>) using the following algorithm:</p>
@@ -209,35 +160,36 @@ Maddy.getClassOf(new Date); // =&gt; "Date"
 
 <p><em>Note: JScript 5, implemented in Internet Explorer 6-8, <strong>treats <code>undefined</code> elements in arrays as elisions</strong>. Thus, in Internet Explorer, sparse arrays (<code>Array(3)</code>) are equivalent to dense arrays containing <code>undefined</code> values (<code>[undefined, undefined, undefined]</code>).</em></p>
 
-<pre><code>Maddy.isEqual(0, 0); // =&gt; true
-Maddy.isEqual(0, -0); // =&gt; false
-Maddy.isEqual("", 0); // =&gt; false
-Maddy.isEqual(false, ""); // =&gt; false
-Maddy.isEqual(null, undefined); // =&gt; false
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="kc">false</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
 
-Maddy.isEqual("Kit", new String("Kit")); // =&gt; true
-Maddy.isEqual(new String("Kit"), new String("Kit")); // =&gt; true
-Maddy.isEqual(new Number(3), new Number(3)); // =&gt; true
-Maddy.isEqual(NaN, NaN); // =&gt; true
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">));</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">),</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">));</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">));</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="kc">NaN</span><span class="p">,</span> <span class="kc">NaN</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
 
-Maddy.isEqual(new Date(2009, 4, 9), new Date(2009, 4, 9)); // =&gt; true
-Maddy.isEqual(new Date("Kit"), new Date("Kit")); // =&gt; false;
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">));</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">),</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">));</span> <span class="c1">// =&gt; false;</span>
 
-Maddy.isEqual(/(?:)/gim, /(?:)/gim); // =&gt; true
-Maddy.isEqual(/(?:)/gi, /(?:)/gm); // =&gt; false
-Maddy.isEqual(/Kit/gm, /Maddy/gm); // =&gt; false
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="sr">/(?:)/gim</span><span class="p">,</span> <span class="sr">/(?:)/gim</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="sr">/(?:)/gi</span><span class="p">,</span> <span class="sr">/(?:)/gm</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="sr">/Kit/gm</span><span class="p">,</span> <span class="sr">/Maddy/gm</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
 
-var elements = [], equivalent = [];
-elements.push(elements, 1, new String("Kit"), new Number(3), elements);
-equivalent.push(equivalent, new Number(1), new String("Kit"), 3, equivalent);
-Maddy.isEqual(elements, equivalent); // =&gt; true
+<span class="kd">var</span> <span class="nx">elements</span> <span class="o">=</span> <span class="p">[],</span> <span class="nx">equivalent</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="nx">elements</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">elements</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">),</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="nx">elements</span><span class="p">);</span>
+<span class="nx">equivalent</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">equivalent</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Kit&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="nx">equivalent</span><span class="p">);</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="nx">elements</span><span class="p">,</span> <span class="nx">equivalent</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
 
-elements = {};
-equivalent = {};
-elements.elements = elements;
-equivalent.elements = equivalent;
-Maddy.isEqual(elements, equivalent); // =&gt; true
-</code></pre>
+<span class="nx">elements</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="nx">equivalent</span> <span class="o">=</span> <span class="p">{};</span>
+<span class="nx">elements</span><span class="p">.</span><span class="nx">elements</span> <span class="o">=</span> <span class="nx">elements</span><span class="p">;</span>
+<span class="nx">equivalent</span><span class="p">.</span><span class="nx">elements</span> <span class="o">=</span> <span class="nx">equivalent</span><span class="p">;</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEqual</span><span class="p">(</span><span class="nx">elements</span><span class="p">,</span> <span class="nx">equivalent</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+</pre></div>
+</div>
 
 <h3 id="stringify">stringify <code>Maddy.stringify(object)</code></h3>
 <p>Returns a debug-oriented representation of an object, similar to <code>JSON.stringify</code>. Objects are serialized according to a superset of the <a href="https://developer.mozilla.org/en/JSON">JSON encoding algorithm</a>:</p>
@@ -252,34 +204,35 @@ Maddy.isEqual(elements, equivalent); // =&gt; true
 
 <p><em>Note that custom <code>toJSON</code> methods are <strong>ignored</strong></em>.</p>
 
-<pre><code>Maddy.stringify([1, 2, 3, "Kit", {"name": "Maddy"}, NaN, Infinity]);
-// =&gt; "[1, 2, 3, \"Kit\", {\"name\": \"Maddy\"}, null, null]"
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Maddy&quot;</span><span class="p">},</span> <span class="kc">NaN</span><span class="p">,</span> <span class="kc">Infinity</span><span class="p">]);</span>
+<span class="c1">// =&gt; &quot;[1, 2, 3, \&quot;Kit\&quot;, {\&quot;name\&quot;: \&quot;Maddy\&quot;}, null, null]&quot;</span>
 
-Maddy.stringify("Hello\tthis\bis\\nice");
-// =&gt; "\"Hello\tthis\bis\\nice\""
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="s2">&quot;Hello\tthis\bis\\nice&quot;</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;\&quot;Hello\tthis\bis\\nice\&quot;&quot;</span>
 
-Maddy.stringify(/(?:)/);
-// =&gt; "{\"source\": \"(?:)\", \"global\": false, \"ignoreCase\": false, \"multiline\": false}"
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="sr">/(?:)/</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;{\&quot;source\&quot;: \&quot;(?:)\&quot;, \&quot;global\&quot;: false, \&quot;ignoreCase\&quot;: false, \&quot;multiline\&quot;: false}&quot;</span>
 
-Maddy.stringify({"kitcam": [new String("Kit Cambridge"), new Number(18)]});
-// =&gt; "{\"kitcam\": [\"Kit Cambridge\", 18]}"
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="p">[</span><span class="k">new</span> <span class="nb">String</span><span class="p">(</span><span class="s2">&quot;Kit Cambridge&quot;</span><span class="p">),</span> <span class="k">new</span> <span class="nb">Number</span><span class="p">(</span><span class="mi">18</span><span class="p">)]});</span>
+<span class="c1">// =&gt; &quot;{\&quot;kitcam\&quot;: [\&quot;Kit Cambridge\&quot;, 18]}&quot;</span>
 
-Maddy.stringify(new Date(Date.UTC(1994, 06, 03)));
-// =&gt; "\"1994-07-03T00:00:00.000Z\""
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">1994</span><span class="p">,</span> <span class="mi">06</span><span class="p">,</span> <span class="mi">03</span><span class="p">)));</span>
+<span class="c1">// =&gt; &quot;\&quot;1994-07-03T00:00:00.000Z\&quot;&quot;</span>
 
-Maddy.stringify();
-// =&gt; "null"
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">();</span>
+<span class="c1">// =&gt; &quot;null&quot;</span>
 
-Maddy.stringify({"value": new Boolean(true), "toJSON": function () {
-  return this.value.valueOf();
-}});
-// =&gt; "{\"value\": true, \"toJSON\": null}"
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="s2">&quot;value&quot;</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span> <span class="s2">&quot;toJSON&quot;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">valueOf</span><span class="p">();</span>
+<span class="p">}});</span>
+<span class="c1">// =&gt; &quot;{\&quot;value\&quot;: true, \&quot;toJSON\&quot;: null}&quot;</span>
 
-var structure = [];
-structure.push(structure, 2, structure, 4, structure);
-Maddy.stringify(structure);
-// =&gt; "[null, 2, null 4, null]"
-</code></pre>
+<span class="kd">var</span> <span class="nx">structure</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="nx">structure</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">structure</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nx">structure</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="nx">structure</span><span class="p">);</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">structure</span><span class="p">);</span>
+<span class="c1">// =&gt; &quot;[null, 2, null 4, null]&quot;</span>
+</pre></div>
+</div>
 
 <h3 id="isEmpty">isEmpty <code>Maddy.isEmpty(object)</code></h3>
 <p>Checks if the provided <strong>object</strong> is empty using the following algorithm:</p>
@@ -293,35 +246,38 @@ Maddy.stringify(structure);
 
 <p><em><code>isEmpty</code> <strong>does not distinguish</strong> between primitives and their corresponding object wrappers.</em></p>
 
-<pre><code>Maddy.isEmpty(null); // =&gt; true
-Maddy.isEmpty(); // =&gt; true
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">();</span> <span class="c1">// =&gt; true</span>
 
-Maddy.isEmpty(Infinity); // =&gt; true
-Maddy.isEmpty(NaN); // =&gt; true
-Maddy.isEmpty(new Date("Invalid Date")); // =&gt; true
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="kc">Infinity</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="kc">NaN</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">&quot;Invalid Date&quot;</span><span class="p">));</span> <span class="c1">// =&gt; true</span>
 
-Maddy.isEmpty({}); // =&gt; true
-Maddy.isEmpty([1, 2, 3]); // =&gt; false
-Maddy.isEmpty(""); // =&gt; true
-Maddy.isEmpty(/(?:)/); // =&gt; false
-</code></pre>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">({});</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]);</span> <span class="c1">// =&gt; false</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span> <span class="c1">// =&gt; true</span>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">isEmpty</span><span class="p">(</span><span class="sr">/(?:)/</span><span class="p">);</span> <span class="c1">// =&gt; false</span>
+</pre></div>
+</div>
 
 <h3 id="keys">keys <code>Maddy.keys(object)</code></h3>
 <p>Returns a lexicographically-sorted array of an <strong>object</strong>’s property names.</p>
 
-<pre><code>Maddy.keys({"first": 1, "second": 2, "third": 3});
-// =&gt; ["first", "second", "third"]
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">keys</span><span class="p">({</span><span class="s2">&quot;first&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;second&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;third&quot;</span><span class="o">:</span> <span class="mi">3</span><span class="p">});</span>
+<span class="c1">// =&gt; [&quot;first&quot;, &quot;second&quot;, &quot;third&quot;]</span>
 
-Maddy.keys({"name": "Kit", "age": 18, developer: true, hobbies: ["running", "programming"]});
-// =&gt; ["age", "developer", "hobbies", "name"]
-</code></pre>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">keys</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">18</span><span class="p">,</span> <span class="nx">developer</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">hobbies</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;running&quot;</span><span class="p">,</span> <span class="s2">&quot;programming&quot;</span><span class="p">]});</span>
+<span class="c1">// =&gt; [&quot;age&quot;, &quot;developer&quot;, &quot;hobbies&quot;, &quot;name&quot;]</span>
+</pre></div>
+</div>
 
 <h3 id="extend">extend <code>Maddy.extend(destination, *sources)</code></h3>
 <p>Extends a <strong>destination</strong> object with the properties of one or more <strong>sources</strong>.</p>
 
-<pre><code>Maddy.extend({"name": "Kit"}, {"age": 18}, {"hobbies": ["running", "programming"]});
-// =&gt; {"name": "Kit", "age": 18, "hobbies": ["running", "programming"]}
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">18</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;hobbies&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;running&quot;</span><span class="p">,</span> <span class="s2">&quot;programming&quot;</span><span class="p">]});</span>
+<span class="c1">// =&gt; {&quot;name&quot;: &quot;Kit&quot;, &quot;age&quot;: 18, &quot;hobbies&quot;: [&quot;running&quot;, &quot;programming&quot;]}</span>
+</pre></div>
+</div>
 
 <h2 id="functional-methods">Functional Methods</h2>
 
@@ -332,151 +288,163 @@ Maddy.keys({"name": "Kit", "age": 18, developer: true, hobbies: ["running", "pro
 
 <p>The <strong>callback</strong> is bound to the optional <strong>context</strong> object, if one is specified, and accepts three arguments: <code>(key, value, object)</code>.</p>
 
-<pre><code>Maddy.forEach(function (pseudonym, name, object) {
-  console.log(pseudonym + ": " + name);
-}, {"jdalton": "John-David Dalton", "kitcam": "Kit Cambridge"});
-=&gt; Prints `"jdalton: John-David Dalton"` and `"kitcam: Kit Cambridge"`.
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">pseudonym</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">pseudonym</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nx">name</span><span class="p">);</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;jdalton&quot;</span><span class="o">:</span> <span class="s2">&quot;John-David Dalton&quot;</span><span class="p">,</span> <span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit Cambridge&quot;</span><span class="p">});</span>
+<span class="c1">// =&gt; Prints `&quot;jdalton: John-David Dalton&quot;` and `&quot;kitcam: Kit Cambridge&quot;`.</span>
+</pre></div>
+</div>
 
 <h3 id="map">map, collect <code>Maddy.map(callback, [context], object)</code></h3>
 <p>Returns an object containing the results of invoking a <strong>callback</strong> function on each <strong>object</strong> member.</p>
 
-<pre><code>Maddy.map(function (pseudonym, data) {
-  return [data.name, data.age];
-}, {
-  "jdalton": {"name": "John-David", "age": 29},
-  "kitcam": {"name": "Kit Cambridge", "age": 18}
-});
-// =&gt; {"jdalton": ["John-David", 29], "kitcam": ["Kit Cambridge", 18]}
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">pseudonym</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">[</span><span class="nx">data</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">data</span><span class="p">.</span><span class="nx">age</span><span class="p">];</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="s2">&quot;jdalton&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;John-David&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">29</span><span class="p">},</span>
+  <span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit Cambridge&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">18</span><span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// =&gt; {&quot;jdalton&quot;: [&quot;John-David&quot;, 29], &quot;kitcam&quot;: [&quot;Kit Cambridge&quot;, 18]}</span>
+</pre></div>
+</div>
 
 <h3 id="fold">fold, inject, reduce <code>Maddy.fold(callback, [context], memo, object)</code></h3>
 <p>Reduces an <strong>object</strong> to a single value by successively invoking the <strong>callback</strong> function on each member. <strong>memo</strong> specifies the initial state of the reduction; each <em>n</em>th invocation of <strong>callback</strong> should return the value of <strong>memo</strong> to be used in the <em>n+1</em>th invocation.</p>
 
 <p>The <strong>callback</strong> function accepts four arguments: <code>(memo, key, value, object)</code>.</p>
 
-<pre><code>Maddy.fold(function (memo, name, occupation) {
-  return memo.push(name, occupation), memo;
-}, [], {"kitcam": "programmer", "maddy": "runner"}).sort();
-// =&gt; ["kitcam", "maddy", "programmer", "runner"]
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">occupation</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">memo</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">occupation</span><span class="p">),</span> <span class="nx">memo</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">[],</span> <span class="p">{</span><span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="s2">&quot;programmer&quot;</span><span class="p">,</span> <span class="s2">&quot;maddy&quot;</span><span class="o">:</span> <span class="s2">&quot;runner&quot;</span><span class="p">}).</span><span class="nx">sort</span><span class="p">();</span>
+<span class="c1">// =&gt; [&quot;kitcam&quot;, &quot;maddy&quot;, &quot;programmer&quot;, &quot;runner&quot;]</span>
 
-Maddy.reduce(function (memo, name, year) {
-  return memo[year] = name, memo;
-}, {}, {"Perl": 1987, "Haskell": 1990, "JavaScript": 1996});
-// =&gt; {1987: "Perl", 1990: "Haskell", 1996: "JavaScript"}
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">memo</span><span class="p">[</span><span class="nx">year</span><span class="p">]</span> <span class="o">=</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">memo</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{},</span> <span class="p">{</span><span class="s2">&quot;Perl&quot;</span><span class="o">:</span> <span class="mi">1987</span><span class="p">,</span> <span class="s2">&quot;Haskell&quot;</span><span class="o">:</span> <span class="mi">1990</span><span class="p">,</span> <span class="s2">&quot;JavaScript&quot;</span><span class="o">:</span> <span class="mi">1996</span><span class="p">});</span>
+<span class="c1">// =&gt; {1987: &quot;Perl&quot;, 1990: &quot;Haskell&quot;, 1996: &quot;JavaScript&quot;}</span>
 
-Maddy.inject(function (memo, name, age) {
-  return memo + age;
-}, 0, {"jdalton": 29, "kitcam": 18, "maddy": 17});
-// =&gt; 64
-</code></pre>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">inject</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">age</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">memo</span> <span class="o">+</span> <span class="nx">age</span><span class="p">;</span>
+<span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;jdalton&quot;</span><span class="o">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s2">&quot;maddy&quot;</span><span class="o">:</span> <span class="mi">17</span><span class="p">});</span>
+<span class="c1">// =&gt; 64</span>
+</pre></div>
+</div>
 
 <h3 id="some">some, any <code>Maddy.some(callback, [context], object)</code></h3>
 <p>Determines if the <strong>callback</strong> returns <code>true</code> for at least one <strong>object</strong> member.</p>
 
-<pre><code>Maddy.some(function (name, year) {
-  return name &gt; "Lua" &amp;&amp; year &gt; 1990;
-}, {"Haskell": 1990, "JavaScript": 1996, "Python": 1991});
-// =&gt; true
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">name</span> <span class="o">&gt;</span> <span class="s2">&quot;Lua&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">year</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;Haskell&quot;</span><span class="o">:</span> <span class="mi">1990</span><span class="p">,</span> <span class="s2">&quot;JavaScript&quot;</span><span class="o">:</span> <span class="mi">1996</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="o">:</span> <span class="mi">1991</span><span class="p">});</span>
+<span class="c1">// =&gt; true</span>
+</pre></div>
+</div>
 
 <h3 id="select">select, findAll, filter <code>Maddy.select(callback, [context], object)</code></h3>
 <p>Returns an object containing all <strong>object</strong> members for which the <strong>callback</strong> returns <code>true</code>. <a href="#reject"><code>reject</code></a> is the opposite of this method.</p>
 
-<pre><code>Maddy.select(function (name, year) {
-  return year &gt; 2007;
-}, {"Functional": 2007, "Underscore": 2009, "Maddy": 2011});
-// =&gt; {"Underscore": 2009, "Maddy": 2011}
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">year</span> <span class="o">&gt;</span> <span class="mi">2007</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;Functional&quot;</span><span class="o">:</span> <span class="mi">2007</span><span class="p">,</span> <span class="s2">&quot;Underscore&quot;</span><span class="o">:</span> <span class="mi">2009</span><span class="p">,</span> <span class="s2">&quot;Maddy&quot;</span><span class="o">:</span> <span class="mi">2011</span><span class="p">});</span>
+<span class="c1">// =&gt; {&quot;Underscore&quot;: 2009, &quot;Maddy&quot;: 2011}</span>
 
-Maddy.findAll(function (name, year) {
-  return name &gt; "Sencha" &amp;&amp; year &gt; 2007;
-}, {"Prototype": 2005, "MooTools": 2006, "Underscore": 2009});
-// =&gt; {"Underscore": 2009}
-</code></pre>
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">name</span> <span class="o">&gt;</span> <span class="s2">&quot;Sencha&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">year</span> <span class="o">&gt;</span> <span class="mi">2007</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;Prototype&quot;</span><span class="o">:</span> <span class="mi">2005</span><span class="p">,</span> <span class="s2">&quot;MooTools&quot;</span><span class="o">:</span> <span class="mi">2006</span><span class="p">,</span> <span class="s2">&quot;Underscore&quot;</span><span class="o">:</span> <span class="mi">2009</span><span class="p">});</span>
+<span class="c1">// =&gt; {&quot;Underscore&quot;: 2009}</span>
+</pre></div>
+</div>
 
 <h3 id="invoke">invoke, send <code>Maddy.invoke(object, method, [*arguments])</code></h3>
 <p>Invokes a <strong>method</strong> with optional <strong>arguments</strong> on every <strong>object</strong> member value. <code>invoke</code> does not directly mutate the original object, but the object may be mutated by the <strong>method</strong>.</p>
 
-<pre><code>Maddy.invoke({1990: "**Haskell**", 1993: "_*Ruby*_"}, "slice", 2, -2);
-// =&gt; {1990: "Haskell", 1993: "Ruby"}
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">invoke</span><span class="p">({</span><span class="mi">1990</span><span class="o">:</span> <span class="s2">&quot;**Haskell**&quot;</span><span class="p">,</span> <span class="mi">1993</span><span class="o">:</span> <span class="s2">&quot;_*Ruby*_&quot;</span><span class="p">},</span> <span class="s2">&quot;slice&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">);</span>
+<span class="c1">// =&gt; {1990: &quot;Haskell&quot;, 1993: &quot;Ruby&quot;}</span>
 
-// Note that the original object may be indirectly mutated by the invoked method.
-var developers = {"mathias": ["Mathias Bynens", 23], "kitcam": ["Kit Cambridge", 18]};
+<span class="c1">// Note that the original object may be indirectly mutated by the invoked method.</span>
+<span class="kd">var</span> <span class="nx">developers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mathias&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;Mathias Bynens&quot;</span><span class="p">,</span> <span class="mi">23</span><span class="p">],</span> <span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;Kit Cambridge&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">]};</span>
 
-Maddy.send(developers, "shift");
-// =&gt; {"mathias": "Mathias Bynens", "kitcam": "Kit Cambridge"}
+<span class="nx">Maddy</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">developers</span><span class="p">,</span> <span class="s2">&quot;shift&quot;</span><span class="p">);</span>
+<span class="c1">// =&gt; {&quot;mathias&quot;: &quot;Mathias Bynens&quot;, &quot;kitcam&quot;: &quot;Kit Cambridge&quot;}</span>
 
-developers;
-// =&gt; {"mathias": [23], "kitcam": [18]}
-</code></pre>
+<span class="nx">developers</span><span class="p">;</span>
+<span class="c1">// =&gt; {&quot;mathias&quot;: [23], &quot;kitcam&quot;: [18]}</span>
+</pre></div>
+</div>
 
 <h3 id="all">all, every <code>Maddy.all(callback, [context], object)</code></h3>
 <p>Determines whether the <strong>callback</strong> returns <code>true</code> for all <strong>object</strong> members.</p>
 
-<pre><code>Maddy.all(function (name, year) {
-  return name &lt; "Visual Basic";
-}, {"Haskell": 1990, "JavaScript": 1996, "Python": 1991});
-// =&gt; true
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">all</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">name</span> <span class="o">&lt;</span> <span class="s2">&quot;Visual Basic&quot;</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;Haskell&quot;</span><span class="o">:</span> <span class="mi">1990</span><span class="p">,</span> <span class="s2">&quot;JavaScript&quot;</span><span class="o">:</span> <span class="mi">1996</span><span class="p">,</span> <span class="s2">&quot;Python&quot;</span><span class="o">:</span> <span class="mi">1991</span><span class="p">});</span>
+<span class="c1">// =&gt; true</span>
+</pre></div>
+</div>
 
 <h3 id="reject">reject <code>Maddy.reject(callback, [context], object)</code></h3>
 <p>Returns an object containing all <strong>object</strong> members for which the <strong>callback</strong> returns <code>false</code>. <a href="#select"><code>select</code></a> is the opposite of this method.</p>
 
-<pre><code>Maddy.reject(function (name, year) {
-  return year &gt; 2010;
-}, {"Backbone": 2010, "Underscore": 2009, "Maddy": 2011});
-// =&gt; {"Backbone": 2010, "Underscore": 2009}
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">year</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">year</span> <span class="o">&gt;</span> <span class="mi">2010</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;Backbone&quot;</span><span class="o">:</span> <span class="mi">2010</span><span class="p">,</span> <span class="s2">&quot;Underscore&quot;</span><span class="o">:</span> <span class="mi">2009</span><span class="p">,</span> <span class="s2">&quot;Maddy&quot;</span><span class="o">:</span> <span class="mi">2011</span><span class="p">});</span>
+<span class="c1">// =&gt; {&quot;Backbone&quot;: 2010, &quot;Underscore&quot;: 2009}</span>
+</pre></div>
+</div>
 
 <h3 id="max">max <code>Maddy.max(callback, [context], object)</code></h3>
 <p>Returns the key of the maximum <strong>object</strong> member-based computation. Members are compared by invoking the <strong>callback</strong> on each member and comparing successive return values.</p>
 
-<pre><code>Maddy.max(function (pseudonym, data) {
-  return data.age;
-}, {"jdalton": {"name": "John-David", "age": 29}, "mathias": {"name": "Mathias", "age": 23}});
-// =&gt; "jdalton"
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">pseudonym</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">data</span><span class="p">.</span><span class="nx">age</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;jdalton&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;John-David&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">29</span><span class="p">},</span> <span class="s2">&quot;mathias&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Mathias&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">23</span><span class="p">}});</span>
+<span class="c1">// =&gt; &quot;jdalton&quot;</span>
+</pre></div>
+</div>
 
 <h3 id="min">min <code>Maddy.min(callback, [context], object)</code></h3>
 <p>Returns the key of the minimum <strong>object</strong> member-based computation.</p>
 
-<pre><code>Maddy.min(function (pseudonym, data) {
-  return data.age;
-}, {"mathias": {"name": "Mathias", "age": 23}, "kitcam": {"name": "Kit", "age": 18}});
-// =&gt; "kitcam"
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">pseudonym</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">data</span><span class="p">.</span><span class="nx">age</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;mathias&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Mathias&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">23</span><span class="p">},</span> <span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="o">:</span> <span class="mi">18</span><span class="p">}});</span>
+<span class="c1">// =&gt; &quot;kitcam&quot;</span>
+</pre></div>
+</div>
 
 <h3 id="partition">partition <code>Maddy.partition(callback, [context], object)</code></h3>
 <p>Separates an <strong>object</strong>’s members into two groups: those for which the <strong>callback</strong> returns <code>true</code>, and those for which it returns <code>false</code>. <code>partition</code> is preferred to invoking both <a href="#select"><code>select</code></a> and <a href="#reject"><code>reject</code></a> on the same <strong>object</strong>.</p>
 
-<pre><code>Maddy.partition(function (pseudonym, name) {
-  return name.length &gt; 5;
-}, {"jdalton": "John-David", "mathias": "Mathias", "kitcam": "Kit", "maddy": "Maddy"});
-// =&gt; [{"jdalton": "John-David", "mathias": "Mathias"}, {"kitcam": "Kit", "maddy": "Maddy"}]
-</code></pre>
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">partition</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">pseudonym</span><span class="p">,</span> <span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">name</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span><span class="s2">&quot;jdalton&quot;</span><span class="o">:</span> <span class="s2">&quot;John-David&quot;</span><span class="p">,</span> <span class="s2">&quot;mathias&quot;</span><span class="o">:</span> <span class="s2">&quot;Mathias&quot;</span><span class="p">,</span> <span class="s2">&quot;kitcam&quot;</span><span class="o">:</span> <span class="s2">&quot;Kit&quot;</span><span class="p">,</span> <span class="s2">&quot;maddy&quot;</span><span class="o">:</span> <span class="s2">&quot;Maddy&quot;</span><span class="p">});</span>
+<span class="c1">// =&gt; [{&quot;jdalton&quot;: &quot;John-David&quot;, &quot;mathias&quot;: &quot;Mathias&quot;}, {&quot;kitcam&quot;: &quot;Kit&quot;, &quot;maddy&quot;: &quot;Maddy&quot;}]</span>
+</pre></div>
+</div>
 
 <h3 id="groupBy">groupBy <code>Maddy.groupBy(callback, [context], object)</code></h3>
 <p>Groups an <strong>object</strong>’s members using the criteria specified by the <strong>callback</strong>.</p>
 
-<pre><code>Maddy.groupBy(function (name, dish) {
-  return dish;
-}, {
-  "John-David": "lasagna",
-  "Mathias": "sushi",
-  "Maddy": "lasagna",
-  "Kit": "soup",
-  "Sam": "cinnamon rolls",
-  "Joe": "sushi",
-  "Mark": "sushi"
-});
+<div><div class="highlight"><pre><span class="nx">Maddy</span><span class="p">.</span><span class="nx">groupBy</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">dish</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">dish</span><span class="p">;</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="s2">&quot;John-David&quot;</span><span class="o">:</span> <span class="s2">&quot;lasagna&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Mathias&quot;</span><span class="o">:</span> <span class="s2">&quot;sushi&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Maddy&quot;</span><span class="o">:</span> <span class="s2">&quot;lasagna&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Kit&quot;</span><span class="o">:</span> <span class="s2">&quot;soup&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Sam&quot;</span><span class="o">:</span> <span class="s2">&quot;cinnamon rolls&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Joe&quot;</span><span class="o">:</span> <span class="s2">&quot;sushi&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Mark&quot;</span><span class="o">:</span> <span class="s2">&quot;sushi&quot;</span>
+<span class="p">});</span>
 
-// =&gt; {
-  "lasagna": {"John-David": "lasagna", "Maddy": "lasagna"},
-  "sushi": {"Mathias": "sushi", "Joe": "sushi", "Mark": "sushi"},
-  "soup": {"Kit": "soup"},
-  "cinnamon rolls": {"Sam": "cinnamon rolls"}
-}
-</code></pre>
+<span class="cm">/* =&gt; {</span>
+<span class="cm">  &quot;lasagna&quot;: {&quot;John-David&quot;: &quot;lasagna&quot;, &quot;Maddy&quot;: &quot;lasagna&quot;},</span>
+<span class="cm">  &quot;sushi&quot;: {&quot;Mathias&quot;: &quot;sushi&quot;, &quot;Joe&quot;: &quot;sushi&quot;, &quot;Mark&quot;: &quot;sushi&quot;},</span>
+<span class="cm">  &quot;soup&quot;: {&quot;Kit&quot;: &quot;soup&quot;},</span>
+<span class="cm">  &quot;cinnamon rolls&quot;: {&quot;Sam&quot;: &quot;cinnamon rolls&quot;}</span>
+<span class="cm">} */</span>
+</pre></div>
+</div>
 
 <script src="lib/maddy.js"></script>
 </body>
