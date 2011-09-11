@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>maddy.js</title>
+  <style>
+  html {
+    font: 14px/24px "Palatino Linotype", "Book Antiqua", Palatino, FreeSerif, serif;
+    margin: 15px;
+  }
+  body {
+    width: 80%;
+  }
+  a {
+    padding: 1px;
+    color: inherit;
+    text-decoration: underline;
+  }
+  a:hover, a:focus {
+    text-decoration: none;
+  }
+  .section {
+    float: right;
+    text-decoration: none;
+    padding: 0 10px;
+    opacity: 0;
+    transition: opacity 0.2s linear;
+    -webkit-transition: opacity 0.2s linear;
+    -moz-transition: opacity 0.2s linear;
+    -o-transition: opacity 0.2s linear;
+  }
+  .annotation:hover .section,  .annotation:focus .section {
+    opacity: 1;
+  }
+  pre, code, tt {
+    font: normal 12px/20px Menlo, Monaco, Consolas, "Lucida Console", monospace;
+  }
+  pre {
+    background-color: #f8f8ff;
+    padding: 10px;
+    border: 1px solid #eee;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .hll { background-color: #ffffcc }
+  .c { color: #228B22 } /* Comment */
+  .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+  .k { color: #8B008B; font-weight: bold } /* Keyword */
+  .cm { color: #228B22 } /* Comment.Multiline */
+  .cp { color: #1e889b } /* Comment.Preproc */
+  .c1 { color: #228B22 } /* Comment.Single */
+  .cs { color: #8B008B; font-weight: bold } /* Comment.Special */
+  .gd { color: #aa0000 } /* Generic.Deleted */
+  .ge { font-style: italic } /* Generic.Emph */
+  .gr { color: #aa0000 } /* Generic.Error */
+  .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+  .gi { color: #00aa00 } /* Generic.Inserted */
+  .go { color: #888888 } /* Generic.Output */
+  .gp { color: #555555 } /* Generic.Prompt */
+  .gs { font-weight: bold } /* Generic.Strong */
+  .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+  .gt { color: #aa0000 } /* Generic.Traceback */
+  .kc { color: #8B008B; font-weight: bold } /* Keyword.Constant */
+  .kd { color: #8B008B; font-weight: bold } /* Keyword.Declaration */
+  .kn { color: #8B008B; font-weight: bold } /* Keyword.Namespace */
+  .kp { color: #8B008B; font-weight: bold } /* Keyword.Pseudo */
+  .kr { color: #8B008B; font-weight: bold } /* Keyword.Reserved */
+  .kt { color: #a7a7a7; font-weight: bold } /* Keyword.Type */
+  .m { color: #B452CD } /* Literal.Number */
+  .s { color: #CD5555 } /* Literal.String */
+  .na { color: #658b00 } /* Name.Attribute */
+  .nb { color: #658b00 } /* Name.Builtin */
+  .nc { color: #008b45; font-weight: bold } /* Name.Class */
+  .no { color: #00688B } /* Name.Constant */
+  .nd { color: #707a7c } /* Name.Decorator */
+  .ne { color: #008b45; font-weight: bold } /* Name.Exception */
+  .nf { color: #008b45 } /* Name.Function */
+  .nn { color: #008b45; text-decoration: underline } /* Name.Namespace */
+  .nt { color: #8B008B; font-weight: bold } /* Name.Tag */
+  .nv { color: #00688B } /* Name.Variable */
+  .ow { color: #8B008B } /* Operator.Word */
+  .w { color: #bbbbbb } /* Text.Whitespace */
+  .mf { color: #B452CD } /* Literal.Number.Float */
+  .mh { color: #B452CD } /* Literal.Number.Hex */
+  .mi { color: #B452CD } /* Literal.Number.Integer */
+  .mo { color: #B452CD } /* Literal.Number.Oct */
+  .sb { color: #CD5555 } /* Literal.String.Backtick */
+  .sc { color: #CD5555 } /* Literal.String.Char */
+  .sd { color: #CD5555 } /* Literal.String.Doc */
+  .s2 { color: #CD5555 } /* Literal.String.Double */
+  .se { color: #CD5555 } /* Literal.String.Escape */
+  .sh { color: #1c7e71; font-style: italic } /* Literal.String.Heredoc */
+  .si { color: #CD5555 } /* Literal.String.Interpol */
+  .sx { color: #cb6c20 } /* Literal.String.Other */
+  .sr { color: #1c7e71 } /* Literal.String.Regex */
+  .s1 { color: #CD5555 } /* Literal.String.Single */
+  .ss { color: #CD5555 } /* Literal.String.Symbol */
+  .bp { color: #658b00 } /* Name.Builtin.Pseudo */
+  .vc { color: #00688B } /* Name.Variable.Class */
+  .vg { color: #00688B } /* Name.Variable.Global */
+  .vi { color: #00688B } /* Name.Variable.Instance */
+  .il { color: #B452CD } /* Literal.Number.Integer.Long */
+  </style>
+</head>
+<body>
+  <h1>maddy.js</h1>
+  <div id="section-1" class="annotation">
+    <a href="#section-1" class="section">&#167;</a>
+    
+    <pre><span class="cm">/*!</span>
+<span class="cm"> * Maddy object operations library</span>
+<span class="cm"> * http://kitcambridge.github.com/maddy</span>
+<span class="cm"> *</span>
+<span class="cm"> * Copyright 2011, Kit Cambridge</span>
+<span class="cm"> * http://kitcambridge.github.com</span>
+<span class="cm"> *</span>
+<span class="cm"> * Released under the MIT License.</span>
+<span class="cm">*/</span>
+
+<span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="nx">Maddy</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">define</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span> <span class="o">&amp;&amp;</span> <span class="k">typeof</span> <span class="nx">define</span><span class="p">[</span><span class="s2">&quot;amd&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">define</span><span class="p">[</span><span class="s2">&quot;amd&quot;</span><span class="p">])</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-2" class="annotation">
+    <a href="#section-2" class="section">&#167;</a>
+    <p>Export Maddy for asynchronous module loaders (e.g., RequireJS, <code>curl.js</code>).</p>
+    <pre>    <span class="nx">define</span><span class="p">([</span><span class="s2">&quot;exports&quot;</span><span class="p">],</span> <span class="nx">Maddy</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-3" class="annotation">
+    <a href="#section-3" class="section">&#167;</a>
+    <p>Export for CommonJS environments, web browsers, and JavaScript engines.</p>
+    <pre>    <span class="nx">Maddy</span> <span class="o">=</span> <span class="nx">Maddy</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">exports</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">exports</span> <span class="o">||</span> <span class="p">(</span><span class="nx">root</span><span class="p">[</span><span class="s2">&quot;Maddy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-4" class="annotation">
+    <a href="#section-4" class="section">&#167;</a>
+    <p><strong>noConflict</strong> restores the original value of the <code>Maddy</code> variable and returns a
+reference to the Maddy object.</p>
+    <pre>      <span class="s2">&quot;noConflict&quot;</span><span class="o">:</span> <span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">original</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">function</span> <span class="nx">noConflict</span><span class="p">()</span> <span class="p">{</span>
+          <span class="nx">root</span><span class="p">[</span><span class="s2">&quot;Maddy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">original</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-5" class="annotation">
+    <a href="#section-5" class="section">&#167;</a>
+    <p><code>noConflict</code> can&rsquo;t be invoked more than once.</p>
+    <pre>          <span class="k">delete</span> <span class="nx">Maddy</span><span class="p">.</span><span class="nx">noConflict</span><span class="p">;</span>
+          <span class="k">return</span> <span class="nx">Maddy</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">noConflict</span><span class="p">;</span>
+      <span class="p">})(</span><span class="nx">root</span><span class="p">[</span><span class="s2">&quot;Maddy&quot;</span><span class="p">])</span>
+    <span class="p">}));</span>
+  <span class="p">}</span>
+<span class="p">})(</span><span class="k">this</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-6" class="annotation">
+    <a href="#section-6" class="section">&#167;</a>
+    <p>The current version of Maddy.</p>
+    <pre>  <span class="nx">exports</span><span class="p">.</span><span class="nx">version</span> <span class="o">=</span> <span class="s2">&quot;0.3.0&quot;</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-7" class="annotation">
+    <a href="#section-7" class="section">&#167;</a>
+    <p><code>Object::toString</code> returns a string containing the internal <code>[[Class]]</code> name of an object.
+<code>Function::apply</code> and <code>Array::slice</code> are cached for performance. <code>Infinity</code> and <code>nil</code> are
+aliased for minification.</p>
+    <pre>  <span class="kd">var</span> <span class="nx">toString</span> <span class="o">=</span> <span class="p">{}.</span><span class="nx">toString</span><span class="p">,</span> <span class="nx">apply</span> <span class="o">=</span> <span class="nx">toString</span><span class="p">.</span><span class="nx">apply</span><span class="p">,</span> <span class="nx">slice</span> <span class="o">=</span> <span class="p">[].</span><span class="nx">slice</span><span class="p">,</span> <span class="kc">Infinity</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">nil</span> <span class="o">=</span> <span class="kc">null</span><span class="p">,</span></pre>
+  </div>
+  <div id="section-8" class="annotation">
+    <a href="#section-8" class="section">&#167;</a>
+    <p><strong>isPropertyOf</strong> determines if a property is a direct property of the specified object.</p>
+    <pre>  <span class="nx">isPropertyOf</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;isPropertyOf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-9" class="annotation">
+    <a href="#section-9" class="section">&#167;</a>
+    <p><code>Object::hasOwnProperty</code> is specified in section 15.2.4.5 of the ES 5.1 spec, but isn&rsquo;t
+implemented in Safari 2.0.3 and older.</p>
+    <pre>    <span class="kd">var</span> <span class="nx">memo</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">hasOwnProperty</span> <span class="o">=</span> <span class="nx">memo</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">,</span> <span class="nx">isPropertyOf</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">hasOwnProperty</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;[object Function]&quot;</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-10" class="annotation">
+    <a href="#section-10" class="section">&#167;</a>
+    <p>Wrap <code>Object::hasOwnProperty</code> in conforming implementations.</p>
+    <pre>      <span class="nx">isPropertyOf</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">!==</span> <span class="nb">Object</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">hasOwnProperty</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">);</span>
+      <span class="p">};</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">memo</span><span class="p">.</span><span class="nx">__proto__</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">,</span> <span class="o">!</span><span class="p">(</span><span class="s2">&quot;toString&quot;</span> <span class="k">in</span> <span class="nx">memo</span><span class="p">))</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-11" class="annotation">
+    <a href="#section-11" class="section">&#167;</a>
+    <p>Safari 2 exposes the value of an object&rsquo;s internal <code>[[Prototype]]</code> property as <code>__proto__</code>.
+Breaking the object&rsquo;s <code>[[Prototype]]</code> chain removes all its inherited properties.</p>
+    <pre>      <span class="nx">isPropertyOf</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">original</span><span class="p">,</span> <span class="nx">result</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">!==</span> <span class="nb">Object</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+        <span class="p">}</span></pre>
+  </div>
+  <div id="section-12" class="annotation">
+    <a href="#section-12" class="section">&#167;</a>
+    <p>Capture and break the object&rsquo;s <code>[[Prototype]]</code> chain. See See ES 5.1 section 8.6.2.</p>
+    <pre>        <span class="nx">original</span> <span class="o">=</span> <span class="nx">object</span><span class="p">.</span><span class="nx">__proto__</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-13" class="annotation">
+    <a href="#section-13" class="section">&#167;</a>
+    <p>The parenthesized expression is necessary to prevent an unsafe transformation by the
+Closure Compiler.</p>
+    <pre>        <span class="nx">result</span> <span class="o">=</span> <span class="nx">property</span> <span class="k">in</span> <span class="p">(</span><span class="nx">object</span><span class="p">.</span><span class="nx">__proto__</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span></pre>
+  </div>
+  <div id="section-14" class="annotation">
+    <a href="#section-14" class="section">&#167;</a>
+    <p>Restore the <code>[[Prototype]]</code> chain.</p>
+    <pre>        <span class="nx">object</span><span class="p">.</span><span class="nx">__proto__</span> <span class="o">=</span> <span class="nx">original</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+      <span class="p">};</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-15" class="annotation">
+    <a href="#section-15" class="section">&#167;</a>
+    <p>Use the <code>constructor</code> property to approximate <code>Object::hasOwnProperty</code> in environments that
+don&quot;t expose the prototype chain.</p>
+    <pre>      <span class="nx">isPropertyOf</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">!==</span> <span class="nb">Object</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="kd">var</span> <span class="nx">parent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">object</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">||</span> <span class="nb">Object</span><span class="p">).</span><span class="nx">prototype</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">property</span> <span class="k">in</span> <span class="nx">object</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="nx">property</span> <span class="k">in</span> <span class="nx">parent</span> <span class="o">&amp;&amp;</span> <span class="nx">object</span><span class="p">[</span><span class="nx">property</span><span class="p">]</span> <span class="o">===</span> <span class="nx">parent</span><span class="p">[</span><span class="nx">property</span><span class="p">]);</span>
+      <span class="p">};</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">isPropertyOf</span><span class="p">;</span>
+  <span class="p">})(),</span></pre>
+  </div>
+  <div id="section-16" class="annotation">
+    <a href="#section-16" class="section">&#167;</a>
+    <p><strong>getClassOf</strong> returns the internal <code>[[Class]]</code> name of an object.</p>
+    <pre>  <span class="nx">getClassOf</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;getClassOf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">className</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-17" class="annotation">
+    <a href="#section-17" class="section">&#167;</a>
+    <p><code>Null</code> and <code>Undefined</code> are not formal <code>[[Class]]</code> names.</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">===</span> <span class="nx">nil</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s2">&quot;Null&quot;</span><span class="p">;</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-18" class="annotation">
+    <a href="#section-18" class="section">&#167;</a>
+    <p>Quickly look up the <code>[[Class]]</code> names of primitive types.</p>
+    <pre>      <span class="nx">className</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">object</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">classNames</span><span class="p">,</span> <span class="nx">className</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">classNames</span><span class="p">[</span><span class="nx">className</span><span class="p">];</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-19" class="annotation">
+    <a href="#section-19" class="section">&#167;</a>
+    <p>Look up the <code>[[Class]]</code> names of objects using <code>Object::toString</code>. <code>&ldquo;Object&rdquo;</code> is used as
+the default if the <code>[[Class]]</code> name is not specified in the map.</p>
+    <pre>      <span class="nx">className</span> <span class="o">=</span> <span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">object</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">classNames</span><span class="p">,</span> <span class="nx">className</span><span class="p">)</span> <span class="o">?</span> <span class="nx">classNames</span><span class="p">[</span><span class="nx">className</span><span class="p">]</span> <span class="o">:</span> <span class="s2">&quot;Object&quot;</span><span class="p">;</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-20" class="annotation">
+    <a href="#section-20" class="section">&#167;</a>
+    <p>An internal <code>[[Class]]</code> map used by <code>getClassOf</code>. See the ECMAScript spec, section 15.2.4.2.</p>
+    <pre>    <span class="kd">var</span> <span class="nx">classNames</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;undefined&quot;</span><span class="o">:</span> <span class="s2">&quot;Undefined&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;[object Function]&quot;</span><span class="o">:</span> <span class="s2">&quot;Function&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;[object Array]&quot;</span><span class="o">:</span> <span class="s2">&quot;Array&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;[object Date]&quot;</span><span class="o">:</span> <span class="s2">&quot;Date&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;[object RegExp]&quot;</span><span class="o">:</span> <span class="s2">&quot;RegExp&quot;</span>
+    <span class="p">};</span></pre>
+  </div>
+  <div id="section-21" class="annotation">
+    <a href="#section-21" class="section">&#167;</a>
+    <p>The values returned by the <code>typeof</code> operator for boolean, string, and number primitives are
+stored in the <code>[[Class]]</code> map along with their corresponding <code>Object::toString</code> equivalents
+for object wrappers.</p>
+    <pre>    <span class="nx">classNames</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">classNames</span><span class="p">[</span><span class="s2">&quot;[object String]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;String&quot;</span><span class="p">;</span>
+    <span class="nx">classNames</span><span class="p">[</span><span class="s2">&quot;boolean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">classNames</span><span class="p">[</span><span class="s2">&quot;[object Boolean]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Boolean&quot;</span><span class="p">;</span>
+    <span class="nx">classNames</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">classNames</span><span class="p">[</span><span class="s2">&quot;[object Number]&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Number&quot;</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="nx">getClassOf</span><span class="p">;</span>
+  <span class="p">})(),</span></pre>
+  </div>
+  <div id="section-22" class="annotation">
+    <a href="#section-22" class="section">&#167;</a>
+    <p><strong>forEach</strong> iterates over an object, executing a callback function once per object member. The
+iteration algorithm is normalized to account for cross-environment inconsistencies. Based on
+work by John-David Dalton, Asen Bozhilov, Juriy Zaytsev, and Tobie Langel.</p>
+    <pre>  <span class="nx">forEach</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;forEach&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-23" class="annotation">
+    <a href="#section-23" class="section">&#167;</a>
+    <p>The <code>Properties</code> constructor tests for bugs in the current environment&rsquo;s <code>for&hellip;in</code>
+algorithm.</p>
+    <pre>    <span class="kd">function</span> <span class="nx">Properties</span><span class="p">()</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-24" class="annotation">
+    <a href="#section-24" class="section">&#167;</a>
+    <p>The <code>valueOf</code> property inherits the non-enumerable flag from <code>Object.prototype</code> in JScript.
+Properties that shadow those in the prototype chain are enumerated twice in Safari 2.</p>
+    <pre>      <span class="k">this</span><span class="p">.</span><span class="nx">valueOf</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-25" class="annotation">
+    <a href="#section-25" class="section">&#167;</a>
+    <p>Iterate over a new instance of the <code>Properties</code> constructor to detect inconsistencies in the
+<code>for&hellip;in</code> algorithm.</p>
+    <pre>    <span class="kd">var</span> <span class="nx">size</span> <span class="o">=</span> <span class="nx">Properties</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">valueOf</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Properties</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">forEach</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="nx">property</span> <span class="k">in</span> <span class="nx">properties</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-26" class="annotation">
+    <a href="#section-26" class="section">&#167;</a>
+    <p>Ignore all other properties inherited from <code>Object.prototype</code>.</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">properties</span><span class="p">,</span> <span class="nx">property</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">size</span><span class="o">++</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-27" class="annotation">
+    <a href="#section-27" class="section">&#167;</a>
+    <p>Normalize the iteration algorithm.</p>
+    <pre>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">size</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-28" class="annotation">
+    <a href="#section-28" class="section">&#167;</a>
+    <p>A list of non-enumerable properties inherited from <code>Object.prototype</code>.</p>
+    <pre>      <span class="nx">properties</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;constructor&quot;</span><span class="p">,</span> <span class="s2">&quot;hasOwnProperty&quot;</span><span class="p">,</span> <span class="s2">&quot;isPrototypeOf&quot;</span><span class="p">,</span> <span class="s2">&quot;propertyIsEnumerable&quot;</span><span class="p">,</span> <span class="s2">&quot;toLocaleString&quot;</span><span class="p">,</span> <span class="s2">&quot;toString&quot;</span><span class="p">,</span> <span class="s2">&quot;valueOf&quot;</span><span class="p">];</span></pre>
+  </div>
+  <div id="section-29" class="annotation">
+    <a href="#section-29" class="section">&#167;</a>
+    <p>JScript ignores shadowed non-enumerable properties.</p>
+    <pre>      <span class="nx">forEach</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">forEach</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">property</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-30" class="annotation">
+    <a href="#section-30" class="section">&#167;</a>
+    <p>The <code>context</code> argument is optional.</p>
+    <pre>        <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+          <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">!==</span> <span class="nb">Object</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nx">property</span> <span class="k">in</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-31" class="annotation">
+    <a href="#section-31" class="section">&#167;</a>
+    <p>Break if the callback function explicitly returns <code>false</code>.</p>
+    <pre>          <span class="k">if</span> <span class="p">(</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">object</span><span class="p">[</span><span class="nx">property</span><span class="p">],</span> <span class="nx">object</span><span class="p">)</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span></pre>
+  </div>
+  <div id="section-32" class="annotation">
+    <a href="#section-32" class="section">&#167;</a>
+    <p>Manually invoke the callback for each non-enumerable property.</p>
+    <pre>        <span class="k">for</span> <span class="p">(</span><span class="nx">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">property</span> <span class="o">=</span> <span class="nx">properties</span><span class="p">[</span><span class="nx">index</span><span class="o">++</span><span class="p">];)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">object</span><span class="p">[</span><span class="nx">property</span><span class="p">],</span> <span class="nx">object</span><span class="p">)</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-33" class="annotation">
+    <a href="#section-33" class="section">&#167;</a>
+    <p>Safari 2 enumerates shadowed properties twice.</p>
+    <pre>      <span class="nx">forEach</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">forEach</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">properties</span><span class="p">,</span> <span class="nx">isFunction</span><span class="p">,</span> <span class="nx">property</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+          <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">!==</span> <span class="nb">Object</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+        <span class="p">}</span></pre>
+  </div>
+  <div id="section-34" class="annotation">
+    <a href="#section-34" class="section">&#167;</a>
+    <p>Create a map of iterated properties.</p>
+    <pre>        <span class="nx">properties</span> <span class="o">=</span> <span class="p">{};</span></pre>
+  </div>
+  <div id="section-35" class="annotation">
+    <a href="#section-35" class="section">&#167;</a>
+    <p>Skip enumerating the <code>prototype</code> property of functions due to cross-environment
+inconsistencies.</p>
+    <pre>        <span class="nx">isFunction</span> <span class="o">=</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Function&quot;</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nx">property</span> <span class="k">in</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-36" class="annotation">
+    <a href="#section-36" class="section">&#167;</a>
+    <p>Store each property name to prevent double enumeration.</p>
+    <pre>          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">isFunction</span> <span class="o">&amp;&amp;</span> <span class="nx">property</span> <span class="o">==</span> <span class="s2">&quot;prototype&quot;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">properties</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">properties</span><span class="p">[</span><span class="nx">property</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">object</span><span class="p">[</span><span class="nx">property</span><span class="p">],</span> <span class="nx">object</span><span class="p">)</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-37" class="annotation">
+    <a href="#section-37" class="section">&#167;</a>
+    <p>No bugs detected; use the standard <code>for&hellip;in</code> algorithm.</p>
+    <pre>      <span class="nx">forEach</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">forEach</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">isFunction</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">isConstructor</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+          <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">object</span> <span class="o">!==</span> <span class="nb">Object</span><span class="p">(</span><span class="nx">object</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nx">isFunction</span> <span class="o">=</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Function&quot;</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nx">property</span> <span class="k">in</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">isFunction</span> <span class="o">&amp;&amp;</span> <span class="nx">property</span> <span class="o">==</span> <span class="s2">&quot;prototype&quot;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="nx">isConstructor</span> <span class="o">=</span> <span class="nx">property</span> <span class="o">==</span> <span class="s2">&quot;constructor&quot;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">object</span><span class="p">[</span><span class="nx">property</span><span class="p">],</span> <span class="nx">object</span><span class="p">)</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span></pre>
+  </div>
+  <div id="section-38" class="annotation">
+    <a href="#section-38" class="section">&#167;</a>
+    <p>Manually invoke the callback for the <code>constructor</code> property due to cross-environment
+inconsistencies.</p>
+    <pre>        <span class="k">if</span> <span class="p">(</span><span class="nx">isConstructor</span> <span class="o">||</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="s2">&quot;constructor&quot;</span><span class="p">))</span> <span class="p">{</span>
+          <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="s2">&quot;constructor&quot;</span><span class="p">,</span> <span class="nx">object</span><span class="p">.</span><span class="nx">constructor</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">};</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">forEach</span><span class="p">;</span>
+  <span class="p">})(),</span></pre>
+  </div>
+  <div id="section-39" class="annotation">
+    <a href="#section-39" class="section">&#167;</a>
+    <p><strong>isEqual</strong> recursively compares two objects.</p>
+    <pre>  <span class="nx">isEqual</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;isEqual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">equals</span><span class="p">(</span><span class="nx">left</span><span class="p">,</span> <span class="nx">right</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">eq</span><span class="p">(</span><span class="nx">left</span><span class="p">,</span> <span class="nx">right</span><span class="p">,</span> <span class="p">[]);</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-40" class="annotation">
+    <a href="#section-40" class="section">&#167;</a>
+    <p>Comparison algorithm derived from work by Jeremy Ashkenas and Philippe Rathe.</p>
+    <pre>    <span class="kd">function</span> <span class="nx">eq</span><span class="p">(</span><span class="nx">left</span><span class="p">,</span> <span class="nx">right</span><span class="p">,</span> <span class="nx">stack</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">className</span><span class="p">,</span> <span class="nx">result</span><span class="p">,</span> <span class="nx">size</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-41" class="annotation">
+    <a href="#section-41" class="section">&#167;</a>
+    <p>Identical objects are equivalent.</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">left</span> <span class="o">===</span> <span class="nx">right</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-42" class="annotation">
+    <a href="#section-42" class="section">&#167;</a>
+    <p><code>0 === -0</code>, but they aren&quot;t equivalent. See the ECMAScript Harmony <code>egal</code> proposal.</p>
+    <pre>        <span class="k">return</span> <span class="nx">left</span> <span class="o">!==</span> <span class="mi">0</span> <span class="o">||</span> <span class="mi">1</span> <span class="o">/</span> <span class="nx">left</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">/</span> <span class="nx">right</span><span class="p">;</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-43" class="annotation">
+    <a href="#section-43" class="section">&#167;</a>
+    <p>Compare <code>[[Class]]</code> names.</p>
+    <pre>      <span class="nx">className</span> <span class="o">=</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">left</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">className</span> <span class="o">!=</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">right</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">switch</span> <span class="p">(</span><span class="nx">className</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-44" class="annotation">
+    <a href="#section-44" class="section">&#167;</a>
+    <p><code>null</code> and <code>undefined</code> are compared by identity.</p>
+    <pre>        <span class="k">case</span> <span class="s2">&quot;Null&quot;</span><span class="o">:</span>
+        <span class="k">case</span> <span class="s2">&quot;Undefined&quot;</span><span class="o">:</span>
+          <span class="k">return</span> <span class="nx">left</span> <span class="o">==</span> <span class="nx">right</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-45" class="annotation">
+    <a href="#section-45" class="section">&#167;</a>
+    <p>Strings, numbers, dates, and booleans are compared by value.</p>
+    <pre>        <span class="k">case</span> <span class="s2">&quot;String&quot;</span><span class="o">:</span></pre>
+  </div>
+  <div id="section-46" class="annotation">
+    <a href="#section-46" class="section">&#167;</a>
+    <p>Primitives and their corresponding object wrappers are equivalent; thus, <code>&ldquo;5&rdquo;</code> is
+equivalent to <code>new String(&ldquo;5&rdquo;)</code>.</p>
+    <pre>          <span class="k">return</span> <span class="nb">String</span><span class="p">(</span><span class="nx">left</span><span class="p">)</span> <span class="o">==</span> <span class="nb">String</span><span class="p">(</span><span class="nx">right</span><span class="p">);</span>
+        <span class="k">case</span> <span class="s2">&quot;Number&quot;</span><span class="o">:</span>
+        <span class="k">case</span> <span class="s2">&quot;Boolean&quot;</span><span class="o">:</span></pre>
+  </div>
+  <div id="section-47" class="annotation">
+    <a href="#section-47" class="section">&#167;</a>
+    <p>Coerce numbers, dates, and booleans to numeric primitive values.</p>
+    <pre>          <span class="nx">left</span> <span class="o">=</span> <span class="o">+</span><span class="nx">left</span><span class="p">;</span>
+          <span class="nx">right</span> <span class="o">=</span> <span class="o">+</span><span class="nx">right</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-48" class="annotation">
+    <a href="#section-48" class="section">&#167;</a>
+    <p><code>NaN</code>s are equivalent, but non-reflexive.</p>
+    <pre>          <span class="k">return</span> <span class="nx">left</span> <span class="o">!=</span> <span class="nx">left</span> <span class="o">?</span> <span class="nx">right</span> <span class="o">!=</span> <span class="nx">right</span> <span class="o">:</span> <span class="nx">left</span> <span class="o">==</span> <span class="nx">right</span><span class="p">;</span>
+        <span class="k">case</span> <span class="s2">&quot;Date&quot;</span><span class="o">:</span></pre>
+  </div>
+  <div id="section-49" class="annotation">
+    <a href="#section-49" class="section">&#167;</a>
+    <p>Compare dates by their millisecond representations. Invalid dates
+are not equivalent.</p>
+    <pre>          <span class="k">return</span> <span class="o">+</span><span class="nx">left</span> <span class="o">==</span> <span class="o">+</span><span class="nx">right</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-50" class="annotation">
+    <a href="#section-50" class="section">&#167;</a>
+    <p>RegExps are compared by their source patterns and flags.</p>
+    <pre>        <span class="k">case</span> <span class="s2">&quot;RegExp&quot;</span><span class="o">:</span>
+          <span class="k">return</span> <span class="nx">left</span><span class="p">.</span><span class="nx">source</span> <span class="o">==</span> <span class="nx">right</span><span class="p">.</span><span class="nx">source</span> <span class="o">&amp;&amp;</span> <span class="nx">left</span><span class="p">.</span><span class="nx">global</span> <span class="o">==</span> <span class="nx">right</span><span class="p">.</span><span class="nx">global</span> <span class="o">&amp;&amp;</span> <span class="nx">left</span><span class="p">.</span><span class="nx">multiline</span> <span class="o">==</span> <span class="nx">right</span><span class="p">.</span><span class="nx">multiline</span> <span class="o">&amp;&amp;</span> <span class="nx">left</span><span class="p">.</span><span class="nx">ignoreCase</span> <span class="o">==</span> <span class="nx">right</span><span class="p">.</span><span class="nx">ignoreCase</span><span class="p">;</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-51" class="annotation">
+    <a href="#section-51" class="section">&#167;</a>
+    <p>All values apart from objects&hellip;</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">left</span> <span class="o">!=</span> <span class="s2">&quot;object&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-52" class="annotation">
+    <a href="#section-52" class="section">&#167;</a>
+    <p>Assume equality for cyclic structures. The algorithm for detecting cyclic structures is
+adapted from ES 5.1 section 15.12.3, abstract operation <code>JO</code>.</p>
+    <pre>      <span class="k">for</span> <span class="p">(</span><span class="nx">size</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">size</span><span class="o">--</span><span class="p">;)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-53" class="annotation">
+    <a href="#section-53" class="section">&#167;</a>
+    <p>This is a simple linear search; thus, performance is inversely proportional to the number
+of unique nested structures.</p>
+    <pre>        <span class="k">if</span> <span class="p">(</span><span class="nx">stack</span><span class="p">[</span><span class="nx">size</span><span class="p">]</span> <span class="o">==</span> <span class="nx">left</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-54" class="annotation">
+    <a href="#section-54" class="section">&#167;</a>
+    <p>Add the object to the stack of traversed objects.</p>
+    <pre>      <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">left</span><span class="p">);</span>
+      <span class="nx">result</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="nx">size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-55" class="annotation">
+    <a href="#section-55" class="section">&#167;</a>
+    <p>Recursively compare objects and arrays.</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">className</span> <span class="o">==</span> <span class="s2">&quot;Array&quot;</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-56" class="annotation">
+    <a href="#section-56" class="section">&#167;</a>
+    <p>Compare array lengths to determine if a deep comparison is necessary.</p>
+    <pre>        <span class="nx">size</span> <span class="o">=</span> <span class="nx">left</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">size</span> <span class="o">==</span> <span class="nx">right</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-57" class="annotation">
+    <a href="#section-57" class="section">&#167;</a>
+    <p>Deep compare the contents, ignoring non-numeric properties.</p>
+    <pre>          <span class="k">while</span> <span class="p">(</span><span class="nx">size</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-58" class="annotation">
+    <a href="#section-58" class="section">&#167;</a>
+    <p>Ensure commutative equality for sparse arrays.</p>
+    <pre>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">result</span> <span class="o">=</span> <span class="nx">size</span> <span class="k">in</span> <span class="nx">left</span> <span class="o">==</span> <span class="nx">size</span> <span class="k">in</span> <span class="nx">right</span> <span class="o">&amp;&amp;</span> <span class="nx">eq</span><span class="p">(</span><span class="nx">left</span><span class="p">[</span><span class="nx">size</span><span class="p">],</span> <span class="nx">right</span><span class="p">[</span><span class="nx">size</span><span class="p">],</span> <span class="nx">stack</span><span class="p">)))</span> <span class="p">{</span>
+              <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">all</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-59" class="annotation">
+    <a href="#section-59" class="section">&#167;</a>
+    <p>Count the expected number of properties.</p>
+    <pre>          <span class="nx">size</span><span class="o">++</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-60" class="annotation">
+    <a href="#section-60" class="section">&#167;</a>
+    <p>Deep compare each own object member.</p>
+    <pre>          <span class="k">return</span> <span class="nx">isPropertyOf</span><span class="p">(</span><span class="nx">right</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">eq</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">right</span><span class="p">[</span><span class="nx">key</span><span class="p">],</span> <span class="nx">stack</span><span class="p">);</span>
+        <span class="p">},</span> <span class="nx">left</span><span class="p">);</span></pre>
+  </div>
+  <div id="section-61" class="annotation">
+    <a href="#section-61" class="section">&#167;</a>
+    <p>Ensure that both objects contain the same number of properties.</p>
+    <pre>        <span class="k">if</span> <span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">all</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">size</span><span class="o">--</span><span class="p">;</span>
+          <span class="p">},</span> <span class="nx">right</span><span class="p">);</span>
+          <span class="nx">result</span> <span class="o">=</span> <span class="o">!</span><span class="nx">size</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-62" class="annotation">
+    <a href="#section-62" class="section">&#167;</a>
+    <p>Remove the object from the traversed object stack.</p>
+    <pre>      <span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+      <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">equals</span><span class="p">;</span>
+  <span class="p">})(),</span></pre>
+  </div>
+  <div id="section-63" class="annotation">
+    <a href="#section-63" class="section">&#167;</a>
+    <p><strong>stringify</strong> returns a debug-oriented representation of an object, similar to
+<code>JSON.stringify</code>. Objects are serialized according to a superset of the JSON encoding
+algorithm.</p>
+    <pre>  <span class="nx">stringify</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;stringify&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">stringify</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">serialize</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="p">[]);</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-64" class="annotation">
+    <a href="#section-64" class="section">&#167;</a>
+    <p>Converts <code>value</code> into a zero-padded string such that its length is at least equal to <code>width</code>.</p>
+    <pre>    <span class="kd">function</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="nx">width</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">value</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span></pre>
+  </div>
+  <div id="section-65" class="annotation">
+    <a href="#section-65" class="section">&#167;</a>
+    <p><code>width &lt; 5</code> only. For arbitrary <code>width</code> values, use <code>Array(width).join(&ldquo;0&rdquo;)</code>.</p>
+    <pre>      <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;0000&quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">).</span><span class="nx">slice</span><span class="p">(</span><span class="o">-</span><span class="nx">width</span><span class="p">);</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-66" class="annotation">
+    <a href="#section-66" class="section">&#167;</a>
+    <p>A map of escape sequences for control characters.</p>
+    <pre>    <span class="kd">var</span> <span class="nx">escapes</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;\b&quot;</span><span class="o">:</span> <span class="s2">&quot;\\b&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;\t&quot;</span><span class="o">:</span> <span class="s2">&quot;\\t&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;\n&quot;</span><span class="o">:</span> <span class="s2">&quot;\\n&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;\f&quot;</span><span class="o">:</span> <span class="s2">&quot;\\f&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;\r&quot;</span><span class="o">:</span> <span class="s2">&quot;\\r&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;\&quot;&quot;</span><span class="o">:</span> <span class="s2">&quot;\\\&quot;&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;\\&quot;</span><span class="o">:</span> <span class="s2">&quot;\\\\&quot;</span>
+    <span class="p">},</span></pre>
+  </div>
+  <div id="section-67" class="annotation">
+    <a href="#section-67" class="section">&#167;</a>
+    <p><code>escapable</code> matches control characters, double quotes, and the escape character.</p>
+    <pre>    <span class="nx">escapable</span> <span class="o">=</span> <span class="sr">/[\x00-\x1f&quot;\\]/g</span><span class="p">,</span> <span class="nx">charCode</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="nx">escape</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-68" class="annotation">
+    <a href="#section-68" class="section">&#167;</a>
+    <p>Populate the escape sequences map with the corresponding control characters.</p>
+    <pre>    <span class="k">for</span> <span class="p">(;</span> <span class="nx">charCode</span><span class="o">--</span><span class="p">;</span> <span class="nx">escape</span> <span class="o">=</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="nx">charCode</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">escapes</span><span class="p">[</span><span class="nx">escape</span><span class="p">])</span> <span class="p">{</span>
+        <span class="nx">escapes</span><span class="p">[</span><span class="nx">escape</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;\\u&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nx">charCode</span><span class="p">.</span><span class="nx">toString</span><span class="p">(</span><span class="mi">16</span><span class="p">));</span>
+      <span class="p">}</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-69" class="annotation">
+    <a href="#section-69" class="section">&#167;</a>
+    <p><code>quote</code> replaces an ASCII control character with its corresponding escape sequence.</p>
+    <pre>    <span class="kd">function</span> <span class="nx">quote</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">value</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span></pre>
+  </div>
+  <div id="section-70" class="annotation">
+    <a href="#section-70" class="section">&#167;</a>
+    <p>Walk the input string.</p>
+    <pre>      <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="s2">&quot;\&quot;&quot;</span><span class="p">,</span> <span class="nx">lastIndex</span> <span class="o">=</span> <span class="nx">escapable</span><span class="p">.</span><span class="nx">lastIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">match</span><span class="p">;</span> <span class="nx">match</span> <span class="o">=</span> <span class="nx">escapable</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">value</span><span class="p">);)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-71" class="annotation">
+    <a href="#section-71" class="section">&#167;</a>
+    <p>Append the escape sequence and update the RegExp&rsquo;s <code>lastIndex</code> property.</p>
+    <pre>        <span class="nx">result</span> <span class="o">+=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">lastIndex</span><span class="p">,</span> <span class="nx">index</span> <span class="o">=</span> <span class="nx">match</span><span class="p">.</span><span class="nx">index</span><span class="p">)</span> <span class="o">+</span> <span class="nx">escapes</span><span class="p">[</span><span class="nx">match</span> <span class="o">=</span> <span class="nx">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]];</span>
+        <span class="nx">lastIndex</span> <span class="o">=</span> <span class="nx">escapable</span><span class="p">.</span><span class="nx">lastIndex</span> <span class="o">=</span> <span class="nx">index</span> <span class="o">+</span> <span class="nx">match</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-72" class="annotation">
+    <a href="#section-72" class="section">&#167;</a>
+    <p>Append the remainder of the input string.</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="nx">lastIndex</span> <span class="o">&lt;</span> <span class="nx">value</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">result</span> <span class="o">+=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">lastIndex</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="nx">result</span> <span class="o">+</span> <span class="s2">&quot;\&quot;&quot;</span><span class="p">;</span>
+    <span class="p">}</span></pre>
+  </div>
+  <div id="section-73" class="annotation">
+    <a href="#section-73" class="section">&#167;</a>
+    <p><code>serialize</code> recursively serializes an object.</p>
+    <pre>    <span class="kd">function</span> <span class="nx">serialize</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">stack</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">className</span> <span class="o">=</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">value</span><span class="p">),</span> <span class="nx">length</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">result</span><span class="p">;</span>
+      <span class="k">switch</span> <span class="p">(</span><span class="nx">className</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="s2">&quot;Number&quot;</span><span class="o">:</span>
+        <span class="k">case</span> <span class="s2">&quot;Boolean&quot;</span><span class="o">:</span></pre>
+  </div>
+  <div id="section-74" class="annotation">
+    <a href="#section-74" class="section">&#167;</a>
+    <p>JSON numbers must be finite. <code>Infinity</code> and <code>NaN</code> are converted to <code>&ldquo;null&rdquo;</code>.</p>
+    <pre>          <span class="k">return</span> <span class="nx">isEmpty</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">?</span> <span class="s2">&quot;null&quot;</span> <span class="o">:</span> <span class="nb">String</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+        <span class="k">case</span> <span class="s2">&quot;String&quot;</span><span class="o">:</span></pre>
+  </div>
+  <div id="section-75" class="annotation">
+    <a href="#section-75" class="section">&#167;</a>
+    <p>Strings are double-quoted and escaped.</p>
+    <pre>          <span class="k">return</span> <span class="nx">quote</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+        <span class="k">case</span> <span class="s2">&quot;Date&quot;</span><span class="o">:</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">isEmpty</span><span class="p">(</span><span class="nx">value</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s2">&quot;null&quot;</span><span class="p">;</span>
+          <span class="p">}</span></pre>
+  </div>
+  <div id="section-76" class="annotation">
+    <a href="#section-76" class="section">&#167;</a>
+    <p>Dates are serialized according to the <code>Date.toJSON</code> method specified in ES 5.1 section
+15.9.5.44. See section 15.9.1.15 for the ISO 8601 date time string format.</p>
+    <pre>          <span class="k">return</span> <span class="s2">&quot;\&quot;&quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCFullYear</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCMonth</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCDate</span><span class="p">())</span> <span class="o">+</span></pre>
+  </div>
+  <div id="section-77" class="annotation">
+    <a href="#section-77" class="section">&#167;</a>
+    <p>Months, dates, hours, minutes, and seconds should have two digits; milliseconds should have three.</p>
+    <pre>            <span class="s2">&quot;T&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCHours</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCMinutes</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCSeconds</span><span class="p">())</span> <span class="o">+</span></pre>
+  </div>
+  <div id="section-78" class="annotation">
+    <a href="#section-78" class="section">&#167;</a>
+    <p>Milliseconds are optional in ES 5.0, but required in 5.1.</p>
+    <pre>            <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nx">toPaddedString</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nx">value</span><span class="p">.</span><span class="nx">getUTCMilliseconds</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;Z\&quot;&quot;</span><span class="p">;</span>
+        <span class="k">case</span> <span class="s2">&quot;RegExp&quot;</span><span class="o">:</span>
+          <span class="k">return</span> <span class="s2">&quot;{\&quot;source\&quot;: &quot;</span> <span class="o">+</span> <span class="nx">quote</span><span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">source</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, \&quot;global\&quot;: &quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">.</span><span class="nx">global</span> <span class="o">+</span> <span class="s2">&quot;, \&quot;ignoreCase\&quot;: &quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">.</span><span class="nx">ignoreCase</span> <span class="o">+</span> <span class="s2">&quot;, \&quot;multiline\&quot;: &quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">.</span><span class="nx">multiline</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">;</span>
+      <span class="p">}</span></pre>
+  </div>
+  <div id="section-79" class="annotation">
+    <a href="#section-79" class="section">&#167;</a>
+    <p>Recursively serialize objects and arrays.</p>
+    <pre>      <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span> <span class="o">&amp;&amp;</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-80" class="annotation">
+    <a href="#section-80" class="section">&#167;</a>
+    <p>ES 5.1 section 15.12.3 dictates that JSON structures must be acyclic. <code>stringify</code>
+replaces all circular references with <code>&ldquo;null&rdquo;</code>.</p>
+    <pre>        <span class="k">for</span> <span class="p">(</span><span class="nx">length</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">length</span><span class="o">--</span><span class="p">;)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">stack</span><span class="p">[</span><span class="nx">length</span><span class="p">]</span> <span class="o">==</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s2">&quot;null&quot;</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span></pre>
+  </div>
+  <div id="section-81" class="annotation">
+    <a href="#section-81" class="section">&#167;</a>
+    <p>Add the object to the stack of traversed objects.</p>
+    <pre>        <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">className</span> <span class="o">==</span> <span class="s2">&quot;Array&quot;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span></pre>
+  </div>
+  <div id="section-82" class="annotation">
+    <a href="#section-82" class="section">&#167;</a>
+    <p>Recursively serialize array elements.</p>
+    <pre>          <span class="k">for</span> <span class="p">(</span><span class="nx">length</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">length</span><span class="o">--</span><span class="p">;)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">length</span> <span class="k">in</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+              <span class="nx">result</span><span class="p">[</span><span class="nx">length</span><span class="p">]</span> <span class="o">=</span> <span class="nx">serialize</span><span class="p">(</span><span class="nx">value</span><span class="p">[</span><span class="nx">length</span><span class="p">],</span> <span class="nx">stack</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">return</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="nx">result</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">result</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-83" class="annotation">
+    <a href="#section-83" class="section">&#167;</a>
+    <p>Recursively serialize object members.</p>
+    <pre>            <span class="k">return</span> <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">quote</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nx">serialize</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">stack</span><span class="p">)),</span> <span class="nx">result</span><span class="p">;</span>
+          <span class="p">},</span> <span class="p">[],</span> <span class="nx">value</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">;</span>
+        <span class="p">}</span></pre>
+  </div>
+  <div id="section-84" class="annotation">
+    <a href="#section-84" class="section">&#167;</a>
+    <p>Remove the object from the traversed object stack.</p>
+    <pre>        <span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="s2">&quot;null&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">stringify</span><span class="p">;</span>
+  <span class="p">})();</span></pre>
+  </div>
+  <div id="section-85" class="annotation">
+    <a href="#section-85" class="section">&#167;</a>
+    <p><strong>isEmpty</strong> checks if the provided object is empty.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;isEmpty&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">isEmpty</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">isEmpty</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">className</span> <span class="o">=</span> <span class="nx">getClassOf</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="nx">className</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">case</span> <span class="s2">&quot;Null&quot;</span><span class="o">:</span>
+      <span class="k">case</span> <span class="s2">&quot;Undefined&quot;</span><span class="o">:</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+      <span class="k">case</span> <span class="s2">&quot;Number&quot;</span><span class="o">:</span>
+      <span class="k">case</span> <span class="s2">&quot;Date&quot;</span><span class="o">:</span></pre>
+  </div>
+  <div id="section-86" class="annotation">
+    <a href="#section-86" class="section">&#167;</a>
+    <p>Numbers and dates with indeterminate numeric primitive values are empty.</p>
+    <pre>        <span class="nx">value</span> <span class="o">=</span> <span class="o">+</span><span class="nx">value</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nx">value</span> <span class="o">!=</span> <span class="nx">value</span> <span class="o">||</span> <span class="nx">value</span> <span class="o">==</span> <span class="kc">Infinity</span> <span class="o">||</span> <span class="nx">value</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+      <span class="k">case</span> <span class="s2">&quot;Boolean&quot;</span><span class="o">:</span>
+      <span class="k">case</span> <span class="s2">&quot;Function&quot;</span><span class="o">:</span>
+      <span class="k">case</span> <span class="s2">&quot;RegExp&quot;</span><span class="o">:</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+      <span class="k">case</span> <span class="s2">&quot;String&quot;</span><span class="o">:</span>
+      <span class="k">case</span> <span class="s2">&quot;Array&quot;</span><span class="o">:</span>
+        <span class="k">return</span> <span class="o">!</span><span class="nx">value</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+      <span class="k">default</span><span class="o">:</span>
+        <span class="k">return</span> <span class="nx">all</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+        <span class="p">},</span> <span class="nx">value</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-87" class="annotation">
+    <a href="#section-87" class="section">&#167;</a>
+    <p><strong>keys</strong> returns a lexicographically-sorted array of an object&rsquo;s property names.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">keys</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">keys</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">results</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">results</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span> <span class="nx">results</span><span class="p">;</span>
+    <span class="p">},</span> <span class="p">[],</span> <span class="nx">object</span><span class="p">).</span><span class="nx">sort</span><span class="p">();</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-88" class="annotation">
+    <a href="#section-88" class="section">&#167;</a>
+    <p><strong>extend</strong> extends an object with the properties of one or more provided objects.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;extend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">extend</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">destination</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">length</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-89" class="annotation">
+    <a href="#section-89" class="section">&#167;</a>
+    <p>Copies each property to the destination object.</p>
+    <pre>    <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">destination</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(;</span> <span class="nx">index</span> <span class="o">&lt;</span> <span class="nx">length</span><span class="p">;</span> <span class="nx">index</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">forEach</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">index</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">destination</span><span class="p">;</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-90" class="annotation">
+    <a href="#section-90" class="section">&#167;</a>
+    <p><strong>map</strong> returns an object containing the results of invoking a callback function on each object
+member. Aliased as <strong>collect</strong>.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;map&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;collect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">map</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">map</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">results</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">results</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">),</span> <span class="nx">results</span><span class="p">;</span>
+    <span class="p">},</span> <span class="p">{},</span> <span class="nx">object</span><span class="p">);</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-91" class="annotation">
+    <a href="#section-91" class="section">&#167;</a>
+    <p><strong>fold</strong> reduces an object to a single value by successively invoking the callback on each
+member. <code>memo</code> specifies the initial state of the reduction; each nth invocation of callback
+should return the value of <code>memo</code> to be used in the (n+1)th invocation. Aliased as <strong>inject</strong>
+and <strong>reduce</strong>.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;fold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;inject&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;reduce&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">fold</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">fold</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">memo</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">length</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid argument.&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">memo</span><span class="p">;</span>
+      <span class="nx">memo</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-92" class="annotation">
+    <a href="#section-92" class="section">&#167;</a>
+    <p>Assume that the optional <code>context</code> argument was omitted.</p>
+    <pre>      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">memo</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">memo</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="p">},</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">memo</span><span class="p">;</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-93" class="annotation">
+    <a href="#section-93" class="section">&#167;</a>
+    <p><strong>some</strong> determines if the callback returns <code>true</code> for at least one object member. Aliased as
+<strong>any</strong>.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;some&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;any&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">some</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">some</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="nx">result</span> <span class="o">=</span> <span class="o">!!</span><span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">));</span>
+    <span class="p">},</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-94" class="annotation">
+    <a href="#section-94" class="section">&#167;</a>
+    <p><strong>select</strong> returns an object containing all object members for which the callback returns
+<code>true</code>. Aliased as <strong>findAll</strong> and <strong>filter</strong>; <strong>reject</strong> is the opposite of this method.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;select&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;findAll&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">select</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">select</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">memo</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">),</span> <span class="nx">memo</span><span class="p">;</span>
+    <span class="p">},</span> <span class="p">{},</span> <span class="nx">object</span><span class="p">);</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-95" class="annotation">
+    <a href="#section-95" class="section">&#167;</a>
+    <p><strong>invoke</strong> invokes a method with optional arguments on every object member value. Aliased as
+<strong>send</strong>.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;invoke&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;send&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">invoke</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">invoke</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">method</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">parameters</span> <span class="o">=</span> <span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">apply</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">value</span><span class="p">[</span><span class="nx">method</span><span class="p">],</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">);</span>
+    <span class="p">},</span> <span class="nx">object</span><span class="p">);</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-96" class="annotation">
+    <a href="#section-96" class="section">&#167;</a>
+    <p><strong>all</strong> determines whether the callback returns <code>true</code> for all object members. Aliased as
+<strong>every</strong>.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;every&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">all</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">all</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span></pre>
+  </div>
+  <div id="section-97" class="annotation">
+    <a href="#section-97" class="section">&#167;</a>
+    <p>&hellip;</p>
+    <pre>    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">result</span> <span class="o">=</span> <span class="o">!!</span><span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="p">},</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-98" class="annotation">
+    <a href="#section-98" class="section">&#167;</a>
+    <p><strong>reject</strong> returns an object containing all object members and values for which the callback
+returns <code>false</code>. <code>select</code> is the opposite of this method.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;reject&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">reject</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">reject</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="o">!</span><span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">memo</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">),</span> <span class="nx">memo</span><span class="p">;</span>
+    <span class="p">},</span> <span class="p">{},</span> <span class="nx">object</span><span class="p">);</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-99" class="annotation">
+    <a href="#section-99" class="section">&#167;</a>
+    <p><strong>max</strong> returns the key of the maximum member-based computation. Member values are compared by
+invoking the callback on each member and comparing successive return values.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">max</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">max</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">criteria</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">criteria</span> <span class="o">&gt;</span> <span class="nx">memo</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">memo</span> <span class="o">=</span> <span class="nx">criteria</span><span class="p">;</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">key</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="nx">memo</span><span class="p">;</span>
+    <span class="p">},</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-100" class="annotation">
+    <a href="#section-100" class="section">&#167;</a>
+    <p><strong>min</strong> returns the key of the minimum member-based computation.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">min</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">min</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">criteria</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">criteria</span> <span class="o">&lt;</span> <span class="nx">memo</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">memo</span> <span class="o">=</span> <span class="nx">criteria</span><span class="p">;</span>
+        <span class="nx">result</span> <span class="o">=</span> <span class="nx">key</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="nx">memo</span><span class="p">;</span>
+    <span class="p">},</span> <span class="kc">Infinity</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-101" class="annotation">
+    <a href="#section-101" class="section">&#167;</a>
+    <p><strong>partition</strong> separates an object&rsquo;s members into two groups: those for which the callback
+returns <code>true</code>, and those for which it returns <code>false</code>. <code>partition</code> is preferred to using both
+<code>select</code> and <code>reject</code> on the same object.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;partition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">partition</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">partition</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">trues</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">falses</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="p">(</span><span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="o">?</span> <span class="nx">trues</span> <span class="o">:</span> <span class="nx">falses</span><span class="p">)[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+    <span class="p">},</span> <span class="nx">object</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nx">trues</span><span class="p">,</span> <span class="nx">falses</span><span class="p">];</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-102" class="annotation">
+    <a href="#section-102" class="section">&#167;</a>
+    <p><strong>groupBy</strong> groups an object&rsquo;s members using the criteria specified by the callback.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;groupBy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">groupBy</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">groupBy</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">object</span> <span class="o">=</span> <span class="nx">context</span><span class="p">;</span>
+      <span class="nx">context</span> <span class="o">=</span> <span class="nx">nil</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">fold</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">memo</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">criteria</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">object</span><span class="p">);</span>
+      <span class="k">return</span> <span class="p">(</span><span class="nx">memo</span><span class="p">[</span><span class="nx">criteria</span><span class="p">]</span> <span class="o">||</span> <span class="p">(</span><span class="nx">memo</span><span class="p">[</span><span class="nx">criteria</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}))[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">memo</span><span class="p">;</span>
+    <span class="p">},</span> <span class="p">{},</span> <span class="nx">object</span><span class="p">);</span>
+  <span class="p">}</span></pre>
+  </div>
+  <div id="section-103" class="annotation">
+    <a href="#section-103" class="section">&#167;</a>
+    <p><strong>curry</strong> partially applies a function, returning a function that, when invoked, calls the
+original function with the pre-filled arguments prepended to any additional arguments.</p>
+    <pre>  <span class="nx">exports</span><span class="p">[</span><span class="s2">&quot;curry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">curry</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">curry</span><span class="p">(</span><span class="nx">method</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">parameters</span><span class="p">,</span> <span class="nx">length</span><span class="p">;</span>
+    <span class="nx">parameters</span> <span class="o">=</span> <span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span></pre>
+  </div>
+  <div id="section-104" class="annotation">
+    <a href="#section-104" class="section">&#167;</a>
+    <p>Return the original function if no arguments were provided.</p>
+    <pre>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">length</span> <span class="o">=</span> <span class="nx">parameters</span><span class="p">.</span><span class="nx">length</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">method</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span></pre>
+  </div>
+  <div id="section-105" class="annotation">
+    <a href="#section-105" class="section">&#167;</a>
+    <p>Append the additional arguments.</p>
+
+    <pre>      <span class="kd">var</span> <span class="nx">sourceLength</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">sourceLength</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">while</span> <span class="p">(</span><span class="nx">sourceLength</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">parameters</span><span class="p">[</span><span class="nx">length</span> <span class="o">+</span> <span class="nx">sourceLength</span><span class="p">]</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">[</span><span class="nx">sourceLength</span><span class="p">];</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="nx">apply</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nx">parameters</span><span class="p">);</span>
+    <span class="p">};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">exports</span><span class="p">;</span>
+<span class="p">});</span></pre>
+  </div>
+</body>
+</html>

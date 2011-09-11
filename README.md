@@ -18,7 +18,7 @@ If you're a [Node](http://nodejs.org/) user, Maddy is available on [npm](http://
 
     $ {sudo} npm install {-g} maddy
 
-The [annotated source code](http://kitcambridge.github.com/maddy/docs/maddy.html) is available for your perusal.
+The [annotated source code](http://kitcambridge.github.com/maddy/docs/index.html) is available for your perusal.
 
 ## Compatibility
 
@@ -69,7 +69,7 @@ In addition to the following [Prototype-inspired](http://prototypejs.org/contrib
 - **Spacing**: Use two spaces for indentation. No tabs.
 - **Naming**: Keep variable and method names concise but descriptive. `index` and `callback` are preferable to `i` and `fn`.
 - **Functions**: Use [named function declarations](http://kangax.github.com/nfe/) to aid in debugging. Avoid anonymous functions and named function expressions.
-- **Comments**: Significant changes and new methods should be annotated with comments. **To regenerate the annotated source**, install [Docco](http://jashkenas.github.com/docco/) and run `docco lib/maddy.js` from the command line.
+- **Comments**: Significant changes and new methods should be annotated with comments.
 - **Lint**: Make sure that your changes pass [JavaScript Lint](http://javascriptlint.com/). A configuration file is included in the repository; to check the source code for problems, run `jsl -conf jsl.conf`.
 
 ## MIT License

@@ -3,9 +3,9 @@ jsl.*
 *.tmproj
 
 tests/
-lib/maddy.min.js
-
 docs/
 site/
-site.rb
+
+Rakefile
+lib/maddy.min.js
 index.html
