@@ -309,6 +309,8 @@
         return 63;
       }
     }), "Number objects and objects with a `valueOf` method are not equal");
+    this.ok(!isEqual(new Number(0), -0), "`new Number(0)` and `-0` are not equal");
+    this.ok(!isEqual(0, new Number(-0)), "Commutative equality is implemented for `new Number(0)` and `-0`");
     this.ok(isEqual(NaN, NaN), "`NaN` is equal to `NaN`");
     this.ok(!isEqual(61, NaN), "A number primitive is not equal to `NaN`");
     this.ok(!isEqual(new Number(79), NaN), "A number object is not equal to `NaN`");
