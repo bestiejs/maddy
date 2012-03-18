@@ -1,5 +1,5 @@
 # Maddy Unit Tests
-# http://kitcambridge.github.com/maddy
+# http://bestiejs.github.com/maddy
 
 # Convenience aliases.
 {toString} = {}

@@ -11,14 +11,14 @@ The library is framework-agnostic, and is compatible with web browsers, [CommonJ
 
 The **development** version is commented and uncompressed; the **production** version has been compressed using [Closure Compiler](http://closure-compiler.appspot.com/home) with [advanced optimizations](http://code.google.com/closure/compiler/docs/api-tutorial3.html) enabled.
 
-- [Development Version](http://kitcambridge.github.com/maddy/lib/maddy.js)
-- [Production Version](http://kitcambridge.github.com/maddy/lib/maddy.min.js)
+- [Development Version](http://bestiejs.github.com/maddy/lib/maddy.js)
+- [Production Version](http://bestiejs.github.com/maddy/lib/maddy.min.js)
 
 If you're a [Node](http://nodejs.org/) user, Maddy is available on [npm](http://npmjs.org/):
 
-    $ {sudo} npm install {-g} maddy
+    $ npm install maddy
 
-The [annotated source code](http://kitcambridge.github.com/maddy/docs/index.html) is available for your perusal.
+The [annotated source code](http://bestiejs.github.com/maddy/docs/index.html) is available for your perusal.
 
 ## Compatibility
 
