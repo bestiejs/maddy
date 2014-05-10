@@ -1,6 +1,9 @@
 Maddy
 =====
 
+**Note:**<br>
+Maddy is no longer under active development. For an alternative utility library, please check out [Lo-Dash](http://lodash.com).
+
 **Maddy** is a functional object operations library. It provides various [higher-order functions](http://en.wikipedia.org/wiki/Higher-order_function) for manipulating object members, as well as utility methods for determining deep equality, checking object types, and recursively inspecting objects. All recursive methods fully support cyclic structures.
 
 Maddy is directly inspired by [Functional](http://osteele.com/sources/javascript/functional/), [Underscore](http://documentcloud.github.com/underscore/), and Ruby's [Enumerable](http://www.ruby-doc.org/core/classes/Enumerable.html) module, and philosophically by the [FuseJS](http://fusejs.com/) project.
